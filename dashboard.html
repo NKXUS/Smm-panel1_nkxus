@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Dashboard | SMM Panel</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500;700&display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --primary: #4a7c59;
+            --primary-light: #52906b;
+            --primary-dark: #3a5a40;
+            --primary-glow: rgba(74, 124, 89, 0.15);
+            --secondary: #1a1c1e;
+            --secondary-light: #6c757d;
+            --accent: #d4a373;
+            --white: #ffffff;
+            --bg: #f8f9fa;
+            --glass: rgba(255, 255, 255, 0.8);
+            --border: rgba(0, 0, 0, 0.05);
+            --sidebar-width: 280px;
+            --header-height: 80px;
+            --radius-xl: 32px;
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.03);
+            --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.08);
+            --transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            background-image:
+                radial-gradient(at 0% 0%, rgba(74, 124, 89, 0.05) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(212, 163, 115, 0.03) 0px, transparent 50%);
+            color: var(--secondary);
+            overflow-x: hidden;
+            width: 100%;
+            position: relative;
+            letter-spacing: -0.01em;
+        }
+
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+            width: 100%;
+        }
+
+        /* ── SIDEBAR ── */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--glass);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        .sidebar-header {
+            padding: 40px 32px;
+            display: flex;
+            align-items: center;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 20px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 14px 20px;
+            text-decoration: none;
+            color: var(--secondary-light);
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: var(--radius-md);
+            transition: var(--transition);
+        }
+
+        .nav-item svg {
+            width: 20px;
+            height: 20px;
+            stroke-width: 1.5px;
+            transition: var(--transition);
+        }
+
+        .nav-item:hover {
+            background: var(--white);
+            color: var(--primary);
+            box-shadow: var(--shadow-sm);
+            transform: translateX(4px);
+        }
+
+        .nav-item.active {
+            background: var(--primary);
+            color: var(--white);
+            box-shadow: 0 12px 24px var(--primary-glow);
+        }
+
+        .nav-item.active svg {
+            transform: scale(1.1);
+        }
+
+        .sidebar-footer {
+            padding: 32px 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* ── MAIN CONTENT ── */
+        .main {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .top-bar {
+            height: var(--header-height);
+            background: rgba(248, 249, 250, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 48px;
+            position: sticky;
+            top: 0;
+            z-index: 900;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--secondary);
+            letter-spacing: -0.03em;
+        }
+
+        .top-actions {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .balance-card {
+            background: var(--white);
+            padding: 10px 24px;
+            border-radius: 100px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .balance-card:hover {
+            border-color: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .balance-card span {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .notification {
+            width: 44px;
+            height: 44px;
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            display: grid;
+            place-items: center;
+            color: var(--secondary-light);
+            position: relative;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .notification:hover {
+            color: var(--primary);
+            border-color: var(--primary-light);
+            transform: translateY(-2px);
+        }
+
+        .notification-dot {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 8px;
+            height: 8px;
+            background: #ff5e5e;
+            border-radius: 50%;
+            border: 2px solid var(--white);
+        }
+
+        .avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 18px;
+            background: var(--primary);
+            display: grid;
+            place-items: center;
+            box-shadow: 0 8px 16px var(--primary-glow);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .avatar:hover {
+            transform: translateY(-2px) rotate(5deg);
+        }
+
+        /* ── DASHBOARD CONTENT ── */
+        .content {
+            padding: 48px;
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .belief-ticker {
+            text-align: center;
+            margin-bottom: 48px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            color: var(--secondary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            opacity: 0.8;
+        }
+
+        .belief-ticker::before,
+        .belief-ticker::after {
+            content: '';
+            height: 1px;
+            width: 40px;
+            background: var(--border);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+            margin-bottom: 48px;
+        }
+
+        .stat-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-light);
+        }
+
+        .stat-icon {
+            width: 64px;
+            height: 64px;
+            background: var(--primary-glow);
+            border-radius: 20px;
+            display: grid;
+            place-items: center;
+            color: var(--primary);
+            font-size: 24px;
+            transition: var(--transition);
+        }
+
+        .stat-card:hover .stat-icon {
+            background: var(--primary);
+            color: var(--white);
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .stat-info h4 {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--secondary-light);
+            margin-bottom: 8px;
+        }
+
+        .stat-info p {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--secondary);
+            letter-spacing: -0.02em;
+        }
+
+        .info-accordion {
+            background: var(--white);
+            border: 1px solid #ffeded;
+            border-radius: var(--radius-md);
+            margin-bottom: 48px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(255, 94, 94, 0.05);
+        }
+
+        .info-ticker {
+            padding: 20px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #ff5e5e;
+            font-size: 13px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            background: #fffafa;
+        }
+
+        .info-content {
+            padding: 0 32px;
+            max-height: 0;
+            overflow: hidden;
+            transition: var(--transition);
+            opacity: 0;
+        }
+
+        .info-accordion.active .info-content {
+            padding: 24px 32px 32px;
+            max-height: 600px;
+            opacity: 1;
+        }
+
+        .info-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .info-list li {
+            font-size: 14px;
+            color: var(--secondary);
+            line-height: 1.6;
+            display: flex;
+            gap: 16px;
+        }
+
+        .info-list li svg {
+            color: #ff5e5e;
+            flex-shrink: 0;
+            margin-top: 3px;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 32px;
+        }
+
+        .category-box {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            padding: 48px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border);
+        }
+
+        .search-services {
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .search-services input {
+            width: 100%;
+            height: 60px;
+            padding: 0 24px 0 60px;
+            background: #f1f3f5;
+            border: 1px solid transparent;
+            border-radius: 18px;
+            font-size: 15px;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .search-services input:focus {
+            background: var(--white);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px var(--primary-glow);
+        }
+
+        .search-services svg {
+            position: absolute;
+            left: 24px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--secondary-light);
+            width: 20px;
+        }
+
+        .platform-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 16px;
+            margin-bottom: 48px;
+        }
+
+        .platform-item {
+            aspect-ratio: 1;
+            background: #f1f3f5;
+            border-radius: 20px;
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid transparent;
+        }
+
+        .platform-item:hover {
+            background: var(--white);
+            border-color: var(--primary-light);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .platform-item.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: var(--white);
+            box-shadow: 0 12px 24px var(--primary-glow);
+        }
+
+        .platform-item svg {
+            width: 28px;
+            height: 28px;
+            transition: var(--transition);
+        }
+
+        .order-form {
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-select,
+        .form-input {
+            width: 100%;
+            height: 56px;
+            padding: 0 20px;
+            background: #f1f3f5;
+            border: 1px solid transparent;
+            border-radius: 14px;
+            font-size: 15px;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .form-select:focus,
+        .form-input:focus {
+            background: var(--white);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px var(--primary-glow);
+        }
+
+        .form-description {
+            background: #fdfaf7;
+            border: 1px solid #f9f0e6;
+            border-radius: 20px;
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .desc-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            color: var(--secondary-light);
+            font-weight: 500;
+        }
+
+        .desc-item svg {
+            color: var(--accent);
+        }
+
+        .btn-submit {
+            height: 64px;
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: 18px;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 12px 32px var(--primary-glow);
+        }
+
+        .btn-submit:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 16px 48px var(--primary-glow);
+        }
+
+        /* ── INFO CARDS ── */
+        .info-side {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .card-promo {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .card-promo h3 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .card-promo p {
+            font-size: 13.5px;
+            color: var(--secondary-light);
+            line-height: 1.6;
+        }
+
+        .btn-promo {
+            margin-top: 8px;
+            padding: 14px;
+            background: var(--primary);
+            color: var(--white);
+            border-radius: 12px;
+            text-align: center;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .btn-promo:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .card-trust {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 24px;
+        }
+
+        .trust-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .card-trust p {
+            font-size: 12px;
+            color: var(--secondary-light);
+            line-height: 1.5;
+        }
+
+        /* ── WHATSAPP FLOAT ── */
+        .whatsapp-float {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 25px rgba(37, 211, 102, 0.4);
+            z-index: 950;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-decoration: none;
+        }
+
+        .whatsapp-float:hover {
+            transform: scale(1.1) translateY(-5px);
+            box-shadow: 0 15px 35px rgba(37, 211, 102, 0.5);
+            color: white;
+        }
+
+        .whatsapp-float svg {
+            width: 32px;
+            height: 32px;
+            fill: currentColor;
+        }
+
+        @media (max-width: 600px) {
+            .whatsapp-float {
+                width: 50px;
+                height: 50px;
+                bottom: 20px;
+                right: 20px;
+            }
+
+            .whatsapp-float svg {
+                width: 28px;
+                height: 28px;
+            }
+        }
+
+        /* ── PERFECT MOBILE RESPONSIVE ── */
+        .mobile-menu-btn {
+            display: none;
+            cursor: pointer;
+        }
+
+        @media (max-width: 1100px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+                box-shadow: 20px 0 60px rgba(0, 0, 0, 0.15);
+                backdrop-filter: blur(25px);
+                width: 300px;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main {
+                margin-left: 0;
+                width: 100%;
+                max-width: 100%;
+                overflow-x: hidden;
+            }
+
+            .mobile-menu-btn {
+                display: flex;
+                width: 44px;
+                height: 44px;
+                background: var(--white);
+                border: 1px solid var(--border);
+                border-radius: 18px;
+                align-items: center;
+                justify-content: center;
+                color: var(--secondary);
+                cursor: pointer;
+                box-shadow: var(--shadow-sm);
+            }
+
+            .top-bar {
+                padding: 0 24px;
+                gap: 15px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 860px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .content {
+                padding: 24px;
+            }
+
+            .page-title {
+                font-size: 20px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .top-bar {
+                padding: 0 16px;
+                height: 74px;
+            }
+
+            .page-title {
+                display: none;
+                /* Hide title to save space for balance/profile */
+            }
+
+            .balance-card {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+
+            .category-box,
+            .card-promo {
+                padding: 24px;
+                border-radius: 20px;
+            }
+
+            .platform-grid {
+                grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+                gap: 12px;
+            }
+
+            .content {
+                padding: 20px 16px 100px;
+            }
+
+            .belief-ticker {
+                font-size: 10px;
+                margin-bottom: 24px;
+            }
+
+            .order-form {
+                gap: 20px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .top-actions {
+                gap: 12px;
+            }
+
+            .balance-card {
+                background: transparent;
+                border: none;
+                box-shadow: none;
+                padding: 0;
+            }
+
+            .balance-card svg {
+                display: none;
+            }
+
+            .stat-card {
+                padding: 24px;
+                gap: 16px;
+            }
+
+            .stat-icon {
+                width: 48px;
+                height: 48px;
+                font-size: 20px;
+            }
+
+            .chat-btn {
+                bottom: 20px;
+                right: 20px;
+                width: 44px;
+                height: 44px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard">
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="logo"
+                    style="text-decoration: none; display: flex; align-items: center; gap: 12px;">
+                    <div class="logo-mark"
+                        style="width: 32px; height: 32px; background: var(--primary); border-radius: 10px; display: grid; place-items: center;">
+                        <svg width="16" height="16" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 2L15 6V12L9 16L3 12V6L9 2Z" stroke="white" stroke-width="1.6"
+                                stroke-linejoin="round" />
+                            <circle cx="9" cy="9" r="2.2" fill="white" />
+                        </svg>
+                    </div>
+                    <span class="logo-text"
+                        style="font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 600; color: var(--secondary); letter-spacing: 0.02em;">SMM
+                        Panel</span>
+                </a>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item active">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"></path>
+                    </svg>
+                    New Order
+                </a>
+                <a href="services.html" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"></path>
+                    </svg>
+                    Service List
+                </a>
+                <a href="orders.html" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M12 2v20M2 12h20"></path>
+                    </svg>
+                    Order History
+                </a>
+                <a href="#" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                    Add Funds
+                </a>
+                <a href="#" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <polyline points="16 18 22 12 16 6"></polyline>
+                        <polyline points="8 6 2 12 8 18"></polyline>
+                    </svg>
+                    API Docs
+                </a>
+                <a href="mass-orders.html" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+                        <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+                    </svg>
+                    Mass Orders
+                </a>
+                <a href="referral.html" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M20 12v10H4V12"></path>
+                        <path
+                            d="M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z">
+                        </path>
+                    </svg>
+                    Refer & Earn
+                </a>
+                <a href="updates.html" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                    Updates
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="contact.html" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    Quick Support
+                </a>
+                <a href="https://wa.me/1234567890" class="nav-item" target="_blank"><svg viewBox="0 0 24 24"
+                        fill="currentColor">
+                        <path
+                            d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                    </svg>WhatsApp Support</a>
+                <a href="index.html" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"></path>
+                    </svg>
+                    Logout
+                </a>
+            </div>
+        </aside>
+
+        <!-- MAIN -->
+        <main class="main">
+            <!-- TOP BAR -->
+            <header class="top-bar">
+                <div class="mobile-menu-btn" id="mobile-toggle">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                </div>
+
+                <h1 class="page-title">Dashboard Overview</h1>
+
+                <div class="top-actions">
+                    <div class="balance-card">
+                        Balance: <span>₹0.00</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </div>
+
+                    <div class="notification">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                        </svg>
+                        <div class="notification-dot"></div>
+                    </div>
+
+                    <div class="user-profile">
+                        <div class="avatar">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- CONTENT -->
+            <div class="content">
+                <div class="belief-ticker">OUR BELIEF - QUALITY OVER QUANTITY</div>
+
+                <!-- STATS -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <h4>Welcome back!</h4>
+                            <p>racharla mohan16</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <h4>Spent balance</h4>
+                            <p>₹0.00</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <line x1="12" y1="1" x2="12" y2="23"></line>
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <h4>Total Funds</h4>
+                            <p>₹0.00</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-accordion" id="info-accordion">
+                    <div class="info-ticker" id="info-toggle">
+                        <span>THINGS TO BE KNOWN BEFORE PLACING ORDER</span>
+                        <div class="info-icon-toggle">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5" id="toggle-svg">
+                                <line x1="12" y1="5" x2="12" y2="19" id="vertical-line"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="info-content">
+                        <ul class="info-list">
+                            <li>Be sure to read the full description of each service which you want to order</li>
+                            <li>Do not use two services at the same time for same link. If you do this, we will not able
+                                to fix it, wait for the first order to be completed, then place new order.</li>
+                            <li>No refund in case of wrong link entered so place order carefully</li>
+                            <li>We work on start count + quantity = final quantity</li>
+                            <li>API user get 7% Discount on all Services & Child panel user get 12%</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="main-grid">
+                    <!-- SERVICES -->
+                    <div class="category-box">
+                        <div class="search-services">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                            <input type="text" placeholder="Search services...">
+                        </div>
+
+                        <div class="platform-grid">
+                            <div class="platform-item active" data-platform="all">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.5">
+                                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                                </svg>
+                            </div>
+                            <div class="platform-item" data-platform="instagram">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                                </svg>
+                            </div>
+                            <div class="platform-item" data-platform="youtube">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path
+                                        d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.42a2.78 2.78 0 0 0-1.94 2C1 8.14 1 12 1 12s0 3.86.46 5.58a2.78 2.78 0 0 0 1.94 2c1.72.42 8.6.42 8.6.42s6.88 0 8.6-.42a2.78 2.78 0 0 0 1.94-2C23 15.86 23 12 23 12s0-3.86-.46-5.58z">
+                                    </path>
+                                    <polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"></polygon>
+                                </svg>
+                            </div>
+                            <div class="platform-item" data-platform="facebook">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                                </svg>
+                            </div>
+                            <div class="platform-item" data-platform="twitter">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path
+                                        d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z">
+                                    </path>
+                                </svg>
+                            </div>
+                            <div class="platform-item" data-platform="telegram">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                </svg>
+                            </div>
+                            <div class="platform-item" data-platform="snapchat">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path
+                                        d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z">
+                                    </path>
+                                </svg>
+                            </div>
+                            <div class="platform-item" data-platform="tiktok">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"></path>
+                                </svg>
+                            </div>
+                            <div class="platform-item" data-platform="linkedin">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path
+                                        d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z">
+                                    </path>
+                                    <rect x="2" y="9" width="4" height="12"></rect>
+                                    <circle cx="4" cy="4" r="2"></circle>
+                                </svg>
+                            </div>
+                            <div class="platform-item" data-platform="discord">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="9" cy="12" r="1"></circle>
+                                    <circle cx="15" cy="12" r="1"></circle>
+                                    <path
+                                        d="M21 11.5a8.38 8.38 0 0 0-.9-3.8 8.5 8.5 0 0 0-7.6-4.7 8.38 8.38 0 0 0-3.8.9L3 3l1.9 5.7a8.38 8.38 0 0 0-.9 3.8 8.5 8.5 0 0 0 4.7 7.6 8.38 8.38 0 0 0 3.8.9h.5a8.48 8.48 0 0 0 8-8v-.5z">
+                                    </path>
+                                </svg>
+                            </div>
+                            <div class="platform-item" data-platform="other">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.5">
+                                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- ORDER FORM -->
+                        <form class="order-form">
+                            <div class="form-group">
+                                <label>Category</label>
+                                <select class="form-select" id="category-select">
+                                    <option>Select a category</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Service</label>
+                                <select class="form-select" id="service-select">
+                                    <option>Select a service</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Description</label>
+                                <div class="form-description">
+                                    <div class="desc-item">⚡ <span><strong>Start Time:</strong> Instant activation – no
+                                            waiting!</span></div>
+                                    <div class="desc-item">🔗 <span><strong>Just Drop Your Link:</strong> Profile URL is
+                                            all we need</span></div>
+                                    <div class="desc-item">🚀 <span><strong>Blazing Speed:</strong> Up to 30,000
+                                            delivered daily</span></div>
+                                    <div class="desc-item">♻️ <span><strong>Worry-Free Guarantee:</strong> 30-Day Refill
+                                            included</span></div>
+                                    <div class="desc-item">💧 <span><strong>Drop Rate:</strong> Only 0–10% max!</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Link</label>
+                                <input type="text" class="form-input" placeholder="https://www.instagram.com/username">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Quantity</label>
+                                <input type="number" class="form-input" placeholder="100">
+                                <span class="form-info-text">Min: 50 - Max: 1,000,000</span>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Average time <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor" stroke-width="2.5">
+                                        <circle cx="12" cy="12" r="10" />
+                                        <line x1="12" y1="16" x2="12" y2="12" />
+                                        <line x1="12" y1="8" x2="12.01" y2="8" />
+                                    </svg></label>
+                                <input type="text" class="form-input" value="13 minutes" readonly style="opacity: 0.6;">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Charge</label>
+                                <input type="text" class="form-input" value="₹0.00" readonly style="font-weight: 700;">
+                            </div>
+
+                            <button type="submit" class="btn-submit">Submit</button>
+                        </form>
+                    </div>
+
+                    <!-- SIDE INFO -->
+                    <div class="info-side">
+                        <div class="card-promo">
+                            <h3>What is SMM Panel?</h3>
+                            <p><strong>SMM Panel</strong> is used to access Social Networks, and making use of it for
+                                profits. You can use the <strong>SMM Panel</strong> to get your marketing move on to the
+                                next stage of developing plans for your product or services.</p>
+                            <p>The social media used includes Facebook, Twitter, Instagram, YouTube, LinkedIn and more.
+                                With this cheapest SMM panel you can grow your business rapidly.</p>
+                            <a href="#" class="btn-promo">Start Your Journey</a>
+                        </div>
+
+                        <div class="card-trust">
+                            <div class="trust-header">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.5">
+                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                </svg>
+                                Trusted Services
+                            </div>
+                            <p>CheapestSMMPanels is recognized as the fastest provider in the digital market for 2026.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- CHAT -->
+        <!-- <div class="chat-btn">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+            </svg>
+        </div> -->
+    </div>
+
+    <script>
+        const mobileToggle = document.getElementById('mobile-toggle');
+        const sidebar = document.getElementById('sidebar');
+
+        mobileToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 1100) {
+                if (!sidebar.contains(e.target) && !mobileToggle.contains(e.target)) {
+                    sidebar.classList.remove('active');
+                }
+            }
+        });
+
+        // ── DYNAMIC FORM LOGIC ──
+        const platformData = {
+            'all': {
+                categories: ['Select a platform first'],
+                services: ['Select a category first']
+            },
+            'instagram': {
+                categories: ['📷 Instagram Followers [Guaranteed ♻️]', '📷 Instagram Likes [Real]', '📷 Instagram Comments', '📷 Instagram Reels Views'],
+                services: {
+                    '📷 Instagram Followers [Guaranteed ♻️]': ['4258 - Followers [Refill - 30Days] - ₹26.31', '4259 - Followers [Elite Quality] - ₹45.20'],
+                    '📷 Instagram Likes [Real]': ['1020 - Instant Likes [Non-Drop] - ₹12.50', '1021 - Real Likes [High Quality] - ₹18.00']
+                }
+            },
+            'youtube': {
+                categories: ['🎥 YouTube Views [High Retention]', '🎥 YouTube Subscribers', '🎥 YouTube Likes', '🎥 YouTube Watchtime'],
+                services: {
+                    '🎥 YouTube Views [High Retention]': ['5012 - Views [Non-Drop] - ₹150.00', '5013 - Views [60min+ Retention] - ₹220.00'],
+                    '🎥 YouTube Subscribers': ['6020 - Real Subs [100% Stable] - ₹850.00']
+                }
+            },
+            'facebook': {
+                categories: ['👍 Facebook Page Likes', '👍 Facebook Post Likes', '👍 Facebook Video Views'],
+                services: {
+                    '👍 Facebook Page Likes': ['2030 - Global Page Likes - ₹40.00', '2031 - Targeted Page Likes - ₹85.00']
+                }
+            }
+        };
+
+        const platformItems = document.querySelectorAll('.platform-item');
+        const categorySelect = document.getElementById('category-select');
+        const serviceSelect = document.getElementById('service-select');
+
+        platformItems.forEach(item => {
+            item.addEventListener('click', () => {
+                // Remove active from all
+                platformItems.forEach(p => p.classList.remove('active'));
+                // Add active to clicked
+                item.classList.add('active');
+
+                const platform = item.getAttribute('data-platform');
+                updateCategories(platform);
+            });
+        });
+
+        function updateCategories(platform) {
+            const data = platformData[platform] || platformData['all'];
+
+            // Clear current categories
+            categorySelect.innerHTML = '';
+
+            data.categories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat;
+                option.textContent = cat;
+                categorySelect.appendChild(option);
+            });
+
+            // Trigger service update for the first category
+            updateServices(platform, categorySelect.value);
+        }
+
+        function updateServices(platform, category) {
+            const data = platformData[platform];
+            serviceSelect.innerHTML = '';
+
+            if (data && data.services && data.services[category]) {
+                data.services[category].forEach(svc => {
+                    const option = document.createElement('option');
+                    option.value = svc;
+                    option.textContent = svc;
+                    serviceSelect.appendChild(option);
+                });
+            } else {
+                const option = document.createElement('option');
+                option.textContent = 'No services available';
+                serviceSelect.appendChild(option);
+            }
+        }
+
+        categorySelect.addEventListener('change', () => {
+            const activePlatform = document.querySelector('.platform-item.active').getAttribute('data-platform');
+            updateServices(activePlatform, categorySelect.value);
+        });
+
+        // Initialize
+        updateCategories('all');
+
+        // ── INFO ACCORDION TOGGLE ──
+        const infoToggle = document.getElementById('info-toggle');
+        const infoAccordion = document.getElementById('info-accordion');
+
+        infoToggle.addEventListener('click', () => {
+            infoAccordion.classList.toggle('active');
+        });
+    </script>
+    <!-- WHATSAPP FLOAT -->
+    <a href="https://wa.me/1234567890" class="whatsapp-float" target="_blank" aria-label="Chat on WhatsApp">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path
+                d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+        </svg>
+    </a>
+</body>
+
+</html>
