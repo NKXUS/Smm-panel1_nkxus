@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Service Updates | SMM Panel</title>
+    <title>WhatsApp Widget | SMM Panel</title>
     <link
         href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=DM+Sans:wght@300;400;500;700&display=swap"
         rel="stylesheet">
@@ -393,6 +393,16 @@
             opacity: 0.45;
         }
 
+        .updates-pagination .pagination-ellipsis {
+            min-width: 28px;
+            height: 42px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--secondary-light);
+            font-weight: 800;
+        }
+
         .updates-pagination .pagination-summary {
             width: 100%;
             text-align: center;
@@ -401,7 +411,149 @@
             font-weight: 500;
             margin-top: 4px;
         }
-@media (max-width: 1100px) {
+
+        .widget-form-card {
+            margin-top: 28px;
+            background: var(--white);
+            border-radius: 18px;
+            padding: 28px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+        }
+
+        .widget-form-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-bottom: 22px;
+        }
+
+        .widget-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .form-group label {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--secondary);
+            text-transform: uppercase;
+        }
+
+        .form-input {
+            width: 100%;
+            height: 52px;
+            padding: 0 18px;
+            background: #f1f3f5;
+            border: 1px solid transparent;
+            border-radius: 14px;
+            font-size: 14px;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .form-input:focus {
+            background: var(--white);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px var(--primary-glow);
+        }
+
+        .widget-toggle {
+            height: 52px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--secondary);
+            user-select: none;
+        }
+
+        .widget-toggle input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+        }
+
+        .btn-save-widget {
+            grid-column: 1 / -1;
+            justify-self: center;
+            height: 52px;
+            border: none;
+            border-radius: 14px;
+            background: var(--primary);
+            color: var(--white);
+            padding: 0 24px;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 10px 22px var(--primary-glow);
+            transition: var(--transition);
+        }
+
+        .btn-save-widget:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .widget-alert {
+            display: none;
+            margin-top: 18px;
+            padding: 14px 18px;
+            border-radius: 14px;
+            background: #e8f5e9;
+            border: 1px solid #c8e6c9;
+            color: #2e7d32;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .widget-alert.error {
+            background: #fff5f5;
+            border-color: #ffd6d6;
+            color: #c92a2a;
+        }
+
+        .widget-table-card {
+            margin-top: 28px;
+        }
+
+        .widget-message-cell {
+            max-width: 420px;
+            line-height: 1.5;
+            font-weight: 600;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .status-badge.active {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-badge.inactive {
+            background: #fff5f5;
+            color: #c92a2a;
+        }
+
+        @media (max-width: 1100px) {
             .sidebar {
                 transform: translateX(-100%);
                 width: 300px;
@@ -489,7 +641,11 @@
             .filter-select {
                 min-width: 100%;
             }
-}
+
+            .widget-form {
+                grid-template-columns: 1fr;
+            }
+        }
 
         @media (max-width: 600px) {
             .top-bar {
@@ -739,7 +895,7 @@
                     </svg>
                     Refer & Earn
                 </a>
-                <a href="updates.html" class="nav-item active">
+                <a href="updates.html" class="nav-item ">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                         stroke-linejoin="round">
                         <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
@@ -747,7 +903,7 @@
                     </svg>
                     Updates
                 </a>
-                <a href="whatsapp-widget.html" class="nav-item">
+                <a href="whatsapp-widget.html" class="nav-item active">
                     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                         <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347" />
                     </svg>
@@ -792,7 +948,7 @@
                     </svg>
                 </div>
 
-                <h1 class="page-title">Service Updates</h1>
+                <h1 class="page-title">WhatsApp Widget</h1>
 
                 <div class="top-actions">
                     <div class="balance-card">
@@ -826,226 +982,45 @@
 
             <!-- CONTENT -->
             <div class="content">
-                <div class="updates-header-box">
-                    <div class="filters-bar">
-                        <select class="filter-select" id="updates-filter">
-                            <option value="all">All Services</option>
-                            <option value="active">Enabled</option>
-                            <option value="inactive">Disabled</option>
-                            <option value="featured">Featured</option>
-                        </select>
-                        <div class="search-wrap">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2.5">
-                                <circle cx="11" cy="11" r="8"></circle>
-                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                            </svg>
-                            <input type="text" class="search-input" id="updates-search" placeholder="Search for services or updates...">
+                <div class="widget-form-card" id="whatsapp-widget">
+                    <h2 class="widget-form-title">WhatsApp Widget</h2>
+                    <form class="widget-form" id="whatsapp-widget-form">
+                        <div class="form-group">
+                            <label for="widget-phone">Phone number</label>
+                            <input type="tel" class="form-input" id="widget-phone" placeholder="8688383973" required>
                         </div>
-                    </div>
+                        <div class="form-group">
+                            <label for="widget-message">Greeting message</label>
+                            <input type="text" class="form-input" id="widget-message" placeholder="Hello, I need help" required>
+                        </div>
+                        <label class="widget-toggle">
+                            <input type="checkbox" id="widget-active" checked>
+                            Active
+                        </label>
+                        <button type="submit" class="btn-save-widget" id="btn-save-widget">Submit</button>
+                    </form>
+                    <div class="widget-alert" id="widget-alert"></div>
                 </div>
 
-                <div class="table-container">
+                <div class="table-container widget-table-card">
                     <table class="updates-table">
                         <thead>
                             <tr>
-                                <th>Service</th>
-                                <th>Date</th>
-                                <th>Update</th>
+                                <th>ID</th>
+                                <th>Phone Number</th>
+                                <th>Greeting Message</th>
+                                <th>Status</th>
+                                <th>Created Date</th>
                             </tr>
                         </thead>
-                        <tbody id="updates-table-body">
+                        <tbody id="widgets-table-body">
                             <tr>
-                                <td data-label="Service">
-                                    <div class="service-cell">
-                                        <span class="service-id">1341</span>
-                                        <span class="service-name">⚠️ Facebook Page Likes - Speed:- 3K/Day - Refill:- 30
-                                            Days {Start Time:- 0-1 Hour}</span>
-                                    </div>
-                                </td>
-                                <td data-label="Date" class="date-cell">2026-05-14</td>
-                                <td data-label="Update" class="update-description update-increase">Rate Increased from
-                                    ₹40.63 to ₹40.69</td>
-                            </tr>
-                            <tr>
-                                <td data-label="Service">
-                                    <div class="service-cell">
-                                        <span class="service-id">1817</span>
-                                        <span class="service-name">Facebook Page Likes | 🔥Non Drop | ⚡Speed 5K/Day |
-                                            ✅30days Refill | ⚠️ Recommend after update</span>
-                                    </div>
-                                </td>
-                                <td data-label="Date" class="date-cell">2026-05-14</td>
-                                <td data-label="Update" class="update-description update-increase">Rate increased from
-                                    ₹138.76 to ₹138.98</td>
-                            </tr>
-                            <tr>
-                                <td data-label="Service">
-                                    <div class="service-cell">
-                                        <span class="service-id">684</span>
-                                        <span class="service-name">⚠️ Facebook Page Likes - [ Max - 1M | Speed: 10K/D ]
-                                            [ Refill: 15Days Button | Non Drop ] 🥦</span>
-                                    </div>
-                                </td>
-                                <td data-label="Date" class="date-cell">2026-05-14</td>
-                                <td data-label="Update" class="update-description update-increase">Rate increased from
-                                    ₹41.97 to ₹41.99</td>
-                            </tr>
-                            <tr>
-                                <td data-label="Service">
-                                    <div class="service-cell">
-                                        <span class="service-id">5318</span>
-                                        <span class="service-name">us Spotify Album Plays [USA] [Speed: 100K Daily]
-                                            [Max: 1M] [Lifetime Guaranteed]</span>
-                                    </div>
-                                </td>
-                                <td data-label="Date" class="date-cell">2026-05-14</td>
-                                <td data-label="Update" class="update-description update-enabled">Service enabled</td>
-                            </tr>
-                            <tr>
-                                <td data-label="Service">
-                                    <div class="service-cell">
-                                        <span class="service-id">4831</span>
-                                        <span class="service-name">🟢 Spotify Album Plays [Global] [Speed: 10K-1M/Day]
-                                            [Max: 500K] [Lifetime Guarantee] [Drip-Feed ON!]</span>
-                                    </div>
-                                </td>
-                                <td data-label="Date" class="date-cell">2026-05-14</td>
-                                <td data-label="Update" class="update-description update-enabled">Service enabled</td>
-                            </tr>
-                            <tr>
-                                <td data-label="Service">
-                                    <div class="service-cell">
-                                        <span class="service-id">2981</span>
-                                        <span class="service-name">Instagram Followers [Refill - 365Days] [Speed
-                                            200K+/Day🚀]</span>
-                                    </div>
-                                </td>
-                                <td data-label="Date" class="date-cell">2026-05-14</td>
-                                <td data-label="Update" class="update-description update-increase">Rate Increased from
-                                    ₹92.38 to ₹92.43</td>
-                            </tr>
-                            <tr>
-                                <td data-label="Service">
-                                    <div class="service-cell">
-                                        <span class="service-id">1230</span>
-                                        <span class="service-name">❤️ Instagram Likes - [ Max - 10K | Speed: 10K-20K/Day
-                                            ] [ Cheapest - Start: 5 Minutes ]</span>
-                                    </div>
-                                </td>
-                                <td data-label="Date" class="date-cell">2026-05-13</td>
-                                <td data-label="Update" class="update-description update-enabled">Service enabled</td>
-                            </tr>
-                            <tr>
-                                <td data-label="Service">
-                                    <div class="service-cell">
-                                        <span class="service-id">2408</span>
-                                        <span class="service-name">➡️ Instagram Shares [Share Via Direct Message]
-                                            Exclusive</span>
-                                    </div>
-                                </td>
-                                <td data-label="Date" class="date-cell">2026-05-13</td>
-                                <td data-label="Update" class="update-description update-enabled">Service enabled</td>
-                            </tr>
-                            <tr>
-                                <td data-label="Service">
-                                    <div class="service-cell">
-                                        <span class="service-id">4182</span>
-                                        <span class="service-name">Instagram Followers [Speed - 100K /Day] [Refill -
-                                            365Days ] [Instant] [Best] ✅</span>
-                                    </div>
-                                </td>
-                                <td data-label="Date" class="date-cell">2026-05-13</td>
-                                <td data-label="Update" class="update-description update-enabled">Service enabled</td>
-                            </tr>
-                            <tr>
-                                <td data-label="Service">
-                                    <div class="service-cell">
-                                        <span class="service-id">4571</span>
-                                        <span class="service-name">💎 Spotify Chart Plays 🚀 | Targeted by Country 🟢 |
-                                            Max: 600K 📤 | Daily Chart Guarantee ☑️ | Exclusive Access 📑 | Read Full
-                                            Info 📌</span>
-                                    </div>
-                                </td>
-                                <td data-label="Date" class="date-cell">2026-05-13</td>
-                                <td data-label="Update" class="update-description update-increase">Rate increased from
-                                    ₹266.86 to ₹267.85</td>
-                            </tr>
-                            <tr>
-                                <td data-label="Service">
-                                    <div class="service-cell">
-                                        <span class="service-id">2411</span>
-                                        <span class="service-name">➡️ Instagram Share [Cheapest]</span>
-                                    </div>
-                                </td>
-                                <td data-label="Date" class="date-cell">2026-05-13</td>
-                                <td data-label="Update" class="update-description update-decrease">Rate decreased from
-                                    ₹0.80 to ₹0.79</td>
-                            </tr>
-                            <tr>
-                                <td data-label="Service">
-                                    <div class="service-cell">
-                                        <span class="service-id">4004</span>
-                                        <span class="service-name">✨ Twitter Followers [Refill: 7Day] [Max: 100K] [Start
-                                            Time: 0-3 Hrs] [Speed: 10K-20K/Day]</span>
-                                    </div>
-                                </td>
-                                <td data-label="Date" class="date-cell">2026-05-13</td>
-                                <td data-label="Update" class="update-description update-decrease">Rate decreased from
-                                    ₹452.01 to ₹451.86</td>
-                            </tr>
-                            <tr>
-                                <td data-label="Service">
-                                    <div class="service-cell">
-                                        <span class="service-id">1457</span>
-                                        <span class="service-name">✨ Twitter Likes [Speed - 20K/day] [Refill:- 30 days
-                                            🥦] [Start: 0-1 Hours}</span>
-                                    </div>
-                                </td>
-                                <td data-label="Date" class="date-cell">2026-05-13</td>
-                                <td data-label="Update" class="update-description update-decrease">Rate decreased from
-                                    ₹241.21 to ₹240.99</td>
-                            </tr>
-                            <tr>
-                                <td data-label="Service">
-                                    <div class="service-cell">
-                                        <span class="service-id">4006</span>
-                                        <span class="service-name">✨ Twitter Followers [Refill: 30D] [Max: 100K] [Start
-                                            Time: 0-3 Hrs] [Speed: 10K-30K/Day]</span>
-                                    </div>
-                                </td>
-                                <td data-label="Date" class="date-cell">2026-05-13</td>
-                                <td data-label="Update" class="update-description update-decrease">Rate decreased from
-                                    ₹800.71 to ₹800.43</td>
-                            </tr>
-                            <tr>
-                                <td data-label="Service">
-                                    <div class="service-cell">
-                                        <span class="service-id">6163</span>
-                                        <span class="service-name">✨ Twitter Likes [Speed - 10K/day] [Refill:- 15 days
-                                            🥦] [Start: 0-1 Hours}</span>
-                                    </div>
-                                </td>
-                                <td data-label="Date" class="date-cell">2026-05-13</td>
-                                <td data-label="Update" class="update-description update-decrease">Rate decreased from
-                                    ₹206.75 to ₹206.57</td>
-                            </tr>
-                            <tr>
-                                <td data-label="Service">
-                                    <div class="service-cell">
-                                        <span class="service-id">4005</span>
-                                        <span class="service-name">✨ Twitter Followers [Refill: 15 Days] [Max: 100K]
-                                            [Start Time: 0-3 Hrs] [Speed: 10K-30K/D]</span>
-                                    </div>
-                                </td>
-                                <td data-label="Date" class="date-cell">2026-05-13</td>
-                                <td data-label="Update" class="update-description update-decrease">Rate decreased from
-                                    ₹587.62 to ₹587.42</td>
+                                <td colspan="5" style="text-align:center; padding:48px;">Loading widgets...</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-                <div class="updates-pagination" id="updates-pagination"></div>
+                <div class="updates-pagination" id="widgets-pagination"></div>
             </div>
         </main>
     </div>
@@ -1070,13 +1045,23 @@
     <script>
         (() => {
             const API_BASE_URL = window.SMM_API_BASE_URL || 'http://127.0.0.1:8000';
+            const widgetForm = document.getElementById('whatsapp-widget-form');
+            const widgetPhone = document.getElementById('widget-phone');
+            const widgetMessage = document.getElementById('widget-message');
+            const widgetActive = document.getElementById('widget-active');
+            const widgetAlert = document.getElementById('widget-alert');
+            const saveWidgetButton = document.getElementById('btn-save-widget');
+            const widgetsTableBody = document.getElementById('widgets-table-body');
+            const widgetsPagination = document.getElementById('widgets-pagination');
             const rowsPerPage = 10;
-            const tableBody = document.getElementById('updates-table-body');
-            const pagination = document.getElementById('updates-pagination');
-            const filterSelect = document.getElementById('updates-filter');
-            const searchInput = document.getElementById('updates-search');
-            let services = [];
+            let widgets = [];
             let currentPage = 1;
+
+            function showWidgetAlert(message, isError = false) {
+                widgetAlert.textContent = message;
+                widgetAlert.classList.toggle('error', isError);
+                widgetAlert.style.display = 'block';
+            }
 
             function escapeHtml(value) {
                 return String(value ?? '').replace(/[&<>"']/g, (char) => ({
@@ -1088,26 +1073,27 @@
                 }[char]));
             }
 
-            function formatMoney(value) {
-                return `₹${Number(value || 0).toLocaleString('en-IN', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                })}`;
-            }
-
             function formatDate(value) {
                 const date = new Date(value || Date.now());
                 if (Number.isNaN(date.getTime())) return '-';
                 return date.toISOString().slice(0, 10);
             }
 
-            async function apiRequest(path) {
+            function normalizePhone(value) {
+                return value.replace(/\D/g, '');
+            }
+
+            async function widgetRequest(path, options = {}) {
                 const response = await fetch(`${API_BASE_URL}${path}`, {
-                    headers: { Accept: 'application/json' }
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    ...options
                 });
                 const data = await response.json().catch(() => ({}));
                 if (!response.ok || data.status === false) {
-                    throw new Error(data.error || data.message || 'Could not load services.');
+                    throw new Error(data.error || data.message || 'Could not save WhatsApp widget.');
                 }
                 return data;
             }
@@ -1116,81 +1102,23 @@
                 return payload?.data?.data || payload?.data || [];
             }
 
-            async function getAllServices() {
-                const firstPayload = await apiRequest('/api/get_services');
+            async function loadAllWidgets() {
+                const firstPayload = await widgetRequest('/api/getwhatsappwidgets');
                 const firstItems = itemsFromPayload(firstPayload);
                 const lastPage = Number(firstPayload.data?.last_page || 1);
-                const pageRequests = [];
+                const requests = [];
 
                 for (let page = 2; page <= lastPage; page += 1) {
-                    pageRequests.push(apiRequest(`/api/get_services?page=${page}`));
+                    requests.push(widgetRequest(`/api/getwhatsappwidgets?page=${page}`));
                 }
 
-                const results = await Promise.allSettled(pageRequests);
+                const results = await Promise.allSettled(requests);
                 const restItems = results.flatMap((result) => (
                     result.status === 'fulfilled' ? itemsFromPayload(result.value) : []
                 ));
 
-                return [...firstItems, ...restItems];
-            }
-
-            function platformOf(service) {
-                return String(service.platform || service.category?.platform || '').trim().toLowerCase();
-            }
-
-            function updateFilterOptions() {
-                const platforms = Array.from(new Set(services.map(platformOf).filter(Boolean))).sort();
-                const currentValue = filterSelect.value || 'all';
-                filterSelect.innerHTML = `
-                    <option value="all">All Services</option>
-                    <option value="active">Enabled</option>
-                    <option value="inactive">Disabled</option>
-                    <option value="featured">Featured</option>
-                    ${platforms.map((platform) => `<option value="platform:${escapeHtml(platform)}">${escapeHtml(platform.charAt(0).toUpperCase() + platform.slice(1))}</option>`).join('')}
-                `;
-                filterSelect.value = Array.from(filterSelect.options).some((option) => option.value === currentValue)
-                    ? currentValue
-                    : 'all';
-            }
-
-            function updateInfo(service) {
-                if (String(service.is_active) === '0' || service.is_active === false) {
-                    return { text: 'Service disabled', className: 'update-increase' };
-                }
-
-                if (String(service.is_featured) === '1' || service.is_featured === true) {
-                    return { text: `Featured service at ${formatMoney(service.rate_per_1000)} per 1000`, className: 'update-enabled' };
-                }
-
-                return { text: `Service enabled at ${formatMoney(service.rate_per_1000)} per 1000`, className: 'update-enabled' };
-            }
-
-            function filteredServices() {
-                const filter = filterSelect.value || 'all';
-                const term = searchInput.value.trim().toLowerCase();
-
-                return services.filter((service) => {
-                    const platform = platformOf(service);
-                    const haystack = [
-                        service.id,
-                        service.name,
-                        service.description,
-                        service.category?.name,
-                        service.platform,
-                        service.rate_per_1000,
-                        service.min_order,
-                        service.max_order
-                    ].join(' ').toLowerCase();
-
-                    const matchesSearch = !term || haystack.includes(term);
-                    const matchesFilter = filter === 'all'
-                        || (filter === 'active' && !(String(service.is_active) === '0' || service.is_active === false))
-                        || (filter === 'inactive' && (String(service.is_active) === '0' || service.is_active === false))
-                        || (filter === 'featured' && (String(service.is_featured) === '1' || service.is_featured === true))
-                        || (filter.startsWith('platform:') && platform === filter.replace('platform:', ''));
-
-                    return matchesSearch && matchesFilter;
-                });
+                widgets = [...firstItems, ...restItems].sort((a, b) => Number(a.id || 0) - Number(b.id || 0));
+                renderWidgets();
             }
 
             function renderPagination(totalItems, page) {
@@ -1198,81 +1126,125 @@
                 const safePage = Math.min(Math.max(1, page), lastPage);
                 const from = totalItems ? ((safePage - 1) * rowsPerPage) + 1 : 0;
                 const to = Math.min(safePage * rowsPerPage, totalItems);
-                const pages = Array.from({ length: lastPage }, (_item, index) => index + 1);
 
-                pagination.innerHTML = `
-                    <button class="pagination-btn" type="button" data-page="${safePage - 1}" ${safePage <= 1 ? 'disabled' : ''}>Previous</button>
-                    ${pages.map((pageNumber) => `
+                if (totalItems <= rowsPerPage) {
+                    widgetsPagination.innerHTML = totalItems
+                        ? `<div class="pagination-summary">Showing ${from}-${to} of ${totalItems} widgets</div>`
+                        : '';
+                    return;
+                }
+
+                function pageRange() {
+                    const pages = new Set([1, lastPage, safePage - 1, safePage, safePage + 1]);
+                    return Array.from(pages)
+                        .filter((pageNumber) => pageNumber >= 1 && pageNumber <= lastPage)
+                        .sort((a, b) => a - b);
+                }
+
+                const pages = pageRange();
+                let previousPage = 0;
+                const pageButtons = pages.map((pageNumber) => {
+                    const ellipsis = pageNumber - previousPage > 1
+                        ? '<span class="pagination-ellipsis">...</span>'
+                        : '';
+                    previousPage = pageNumber;
+                    return `
+                        ${ellipsis}
                         <button class="pagination-btn ${pageNumber === safePage ? 'active' : ''}" type="button" data-page="${pageNumber}">${pageNumber}</button>
-                    `).join('')}
+                    `;
+                }).join('');
+
+                widgetsPagination.innerHTML = `
+                    <button class="pagination-btn" type="button" data-page="${safePage - 1}" ${safePage <= 1 ? 'disabled' : ''}>Previous</button>
+                    ${pageButtons}
                     <button class="pagination-btn" type="button" data-page="${safePage + 1}" ${safePage >= lastPage ? 'disabled' : ''}>Next</button>
-                    <div class="pagination-summary">Showing ${from}-${to} of ${totalItems} services</div>
+                    <div class="pagination-summary">Showing ${from}-${to} of ${totalItems} widgets</div>
                 `;
 
-                pagination.querySelectorAll('.pagination-btn').forEach((button) => {
+                widgetsPagination.querySelectorAll('.pagination-btn').forEach((button) => {
                     button.addEventListener('click', () => {
                         const nextPage = Number(button.dataset.page);
                         if (!nextPage || nextPage === currentPage) return;
                         currentPage = nextPage;
-                        renderUpdates();
+                        renderWidgets();
                     });
                 });
             }
 
-            function renderUpdates() {
-                const visible = filteredServices();
-                const lastPage = Math.max(1, Math.ceil(visible.length / rowsPerPage));
+            function renderWidgets() {
+                const lastPage = Math.max(1, Math.ceil(widgets.length / rowsPerPage));
                 currentPage = Math.min(Math.max(1, currentPage), lastPage);
                 const start = (currentPage - 1) * rowsPerPage;
-                const pageItems = visible.slice(start, start + rowsPerPage);
+                const pageItems = widgets.slice(start, start + rowsPerPage);
 
                 if (!pageItems.length) {
-                    tableBody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:48px;">No services found.</td></tr>';
-                    renderPagination(visible.length, currentPage);
+                    widgetsTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:48px;">No WhatsApp widgets found.</td></tr>';
+                    widgetsPagination.innerHTML = '';
                     return;
                 }
 
-                tableBody.innerHTML = pageItems.map((service) => {
-                    const update = updateInfo(service);
+                widgetsTableBody.innerHTML = pageItems.map((widget) => {
+                    const isActive = !(String(widget.is_active) === '0' || widget.is_active === false);
                     return `
                         <tr>
-                            <td data-label="Service">
-                                <div class="service-cell">
-                                    <span class="service-id">${escapeHtml(service.id || '-')}</span>
-                                    <span class="service-name">${escapeHtml(service.name || '-')}</span>
-                                </div>
-                            </td>
-                            <td data-label="Date" class="date-cell">${escapeHtml(formatDate(service.updated_at || service.created_at))}</td>
-                            <td data-label="Update" class="update-description ${update.className}">${escapeHtml(update.text)}</td>
+                            <td data-label="ID"><span class="service-id">${escapeHtml(widget.id || '-')}</span></td>
+                            <td data-label="Phone Number">${escapeHtml(widget.phone_number || '-')}</td>
+                            <td data-label="Greeting Message" class="widget-message-cell">${escapeHtml(widget.greeting_message || '-')}</td>
+                            <td data-label="Status"><span class="status-badge ${isActive ? 'active' : 'inactive'}">${isActive ? 'Active' : 'Inactive'}</span></td>
+                            <td data-label="Created Date" class="date-cell">${escapeHtml(formatDate(widget.created_at))}</td>
                         </tr>
                     `;
                 }).join('');
 
-                renderPagination(visible.length, currentPage);
+                renderPagination(widgets.length, currentPage);
             }
 
-            filterSelect.addEventListener('change', () => {
-                currentPage = 1;
-                renderUpdates();
+            widgetForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+
+                const phone = normalizePhone(widgetPhone.value);
+                const message = widgetMessage.value.trim();
+
+                if (!phone) {
+                    showWidgetAlert('Enter a valid WhatsApp phone number.', true);
+                    return;
+                }
+
+                if (!message) {
+                    showWidgetAlert('Enter greeting message.', true);
+                    return;
+                }
+
+                saveWidgetButton.disabled = true;
+                saveWidgetButton.textContent = 'Saving...';
+
+                try {
+                    const data = await widgetRequest('/api/createwhatsappwidget', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            phone_number: phone,
+                            greeting_message: message,
+                            is_active: widgetActive.checked
+                        })
+                    });
+
+                    showWidgetAlert(data.message || 'WhatsApp widget saved successfully.');
+                    widgetForm.reset();
+                    widgetActive.checked = true;
+                    currentPage = 1;
+                    await loadAllWidgets();
+                } catch (error) {
+                    showWidgetAlert(error.message, true);
+                } finally {
+                    saveWidgetButton.disabled = false;
+                    saveWidgetButton.textContent = 'Submit';
+                }
             });
 
-            searchInput.addEventListener('input', () => {
-                currentPage = 1;
-                renderUpdates();
+            loadAllWidgets().catch((error) => {
+                widgetsTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:48px;">${escapeHtml(error.message)}</td></tr>`;
+                widgetsPagination.innerHTML = '';
             });
-
-            tableBody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:48px;">Loading services...</td></tr>';
-
-            getAllServices()
-                .then((items) => {
-                    services = items;
-                    updateFilterOptions();
-                    renderUpdates();
-                })
-                .catch((error) => {
-                    tableBody.innerHTML = `<tr><td colspan="3" style="text-align:center; padding:48px;">${escapeHtml(error.message)}</td></tr>`;
-                    pagination.innerHTML = '';
-                });
         })();
     </script>
     <!-- WHATSAPP FLOAT -->

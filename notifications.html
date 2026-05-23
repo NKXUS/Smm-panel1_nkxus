@@ -605,6 +605,16 @@
             align-items: center;
         }
 
+        .alert-success.error {
+            background: #fff5f5;
+            border-color: #ffd6d6;
+            color: #c92a2a;
+        }
+
+        .alert-success.error .close-btn {
+            color: #c92a2a;
+        }
+
         .settings-table {
             width: 100%;
             border-collapse: collapse;
@@ -718,6 +728,161 @@
             background: var(--primary-dark);
             transform: translateY(-2px);
             box-shadow: 0 12px 32px var(--primary-glow);
+        }
+
+        .preferences-section-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .preferences-section-title span {
+            color: var(--secondary-light);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .preferences-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .preferences-table {
+            width: 100%;
+            min-width: 760px;
+            border-collapse: collapse;
+        }
+
+        .preferences-table th {
+            padding: 18px 16px;
+            background: #f8f9fa;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--secondary-light);
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+        }
+
+        .preferences-table td {
+            padding: 18px 16px;
+            font-size: 13.5px;
+            color: var(--secondary);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .preference-type {
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .preference-date {
+            font-size: 12px;
+            color: var(--secondary-light);
+            font-weight: 500;
+        }
+
+        .preference-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 52px;
+            padding: 6px 12px;
+            border-radius: 100px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .preference-badge.enabled {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .preference-badge.disabled {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+
+        .preferences-pagination {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 28px 0 8px;
+            flex-wrap: wrap;
+        }
+
+        .preferences-pagination .pagination-btn {
+            min-width: 42px;
+            height: 42px;
+            padding: 0 14px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--white);
+            color: var(--secondary);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .preferences-pagination .pagination-btn:hover:not(:disabled),
+        .preferences-pagination .pagination-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: var(--white);
+            box-shadow: 0 10px 22px var(--primary-glow);
+        }
+
+        .preferences-pagination .pagination-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.45;
+        }
+
+        .preferences-pagination .pagination-summary {
+            width: 100%;
+            text-align: center;
+            color: var(--secondary-light);
+            font-size: 13px;
+            font-weight: 500;
+            margin-top: 4px;
+        }
+
+        .notification-state {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 40px 24px;
+            text-align: center;
+            color: var(--secondary-light);
+            box-shadow: var(--shadow-sm);
+            font-weight: 600;
+        }
+
+        .notification-count {
+            min-width: 22px;
+            height: 22px;
+            padding: 0 7px;
+            border-radius: 999px;
+            background: rgba(74, 124, 89, 0.1);
+            color: var(--primary);
+            display: inline-grid;
+            place-items: center;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .notif-tab-btn.active .notification-count {
+            background: var(--primary);
+            color: var(--white);
         }
 
         @keyframes slideInDown {
@@ -884,6 +1049,12 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                     Updates
                 </a>
+                <a href="whatsapp-widget.html" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347" />
+                    </svg>
+                    WhatsApp Widget
+                </a>
             </nav>
 
             <div class="sidebar-footer">
@@ -891,7 +1062,7 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
                     Quick Support
                 </a>
-                <a href="https://wa.me/1234567890" class="nav-item" target="_blank">
+                <a href="https://wa.me/8688383973" class="nav-item" target="_blank">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" /></svg>
                     WhatsApp Support
                 </a>
@@ -921,7 +1092,7 @@
                         Balance: <span>₹0.00</span>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2.5">
-                            <polyline points="6 9 12 15 18 9"></polyline>
+                            <!-- <polyline points="6 9 12 15 18 9"></polyline> -->
                         </svg>
                     </div>
 
@@ -950,150 +1121,16 @@
             <div class="content">
                 <div class="notifications-header">
                     <div class="notifications-title">
-                        <h1>Your <em>Notifications</em></h1>
-                    </div>
-                    <button class="btn-mark-read" id="btn-mark-all">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                        Mark all as read
-                    </button>
-                </div>
-
-                <!-- Tabs Navigation -->
-                <div class="notif-tabs-nav">
-                    <button class="notif-tab-btn active" id="tab-inbox-btn">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                        Inbox
-                    </button>
-                    <button class="notif-tab-btn" id="tab-settings-btn">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-                        Settings
-                    </button>
-                </div>
-
-                <!-- TAB: INBOX PANE -->
-                <div class="tab-pane active" id="inbox-pane">
-                    <!-- Filter Chips -->
-                    <div class="filter-container">
-                        <div class="filter-chip active" data-filter="all">All</div>
-                        <div class="filter-chip" data-filter="orders">Orders</div>
-                        <div class="filter-chip" data-filter="payments">Payments</div>
-                        <div class="filter-chip" data-filter="system">System</div>
-                        <div class="filter-chip" data-filter="promo">Promos</div>
-                    </div>
-
-                    <!-- Notification Cards -->
-                    <div class="notification-list" id="notif-list">
-                        <!-- Card 1 -->
-                        <div class="notification-card unread notif-order" data-type="orders">
-                            <div class="notif-icon-wrap">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                                </svg>
-                            </div>
-                            <div class="notif-text">
-                                <div class="notif-meta-row">
-                                    <span class="notif-tag">Order Complete</span>
-                                    <span class="notif-time">10 minutes ago</span>
-                                </div>
-                                <h3 class="notif-title">Order #12845 Completed successfully!</h3>
-                                <p class="notif-desc">Your order for 1,000 Instagram Followers has been fully delivered. Average start time was instant.</p>
-                            </div>
-                            <div class="notif-action-dot"></div>
-                        </div>
-
-                        <!-- Card 2 -->
-                        <div class="notification-card unread notif-payment" data-type="payments">
-                            <div class="notif-icon-wrap">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <line x1="12" y1="1" x2="12" y2="23"></line>
-                                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                                </svg>
-                            </div>
-                            <div class="notif-text">
-                                <div class="notif-meta-row">
-                                    <span class="notif-tag">Payment Added</span>
-                                    <span class="notif-time">2 hours ago</span>
-                                </div>
-                                <h3 class="notif-title">₹500.00 added successfully!</h3>
-                                <p class="notif-desc">Your payment via PhonePe UPI has been credited to your account balance. Current balance: ₹500.00.</p>
-                            </div>
-                            <div class="notif-action-dot"></div>
-                        </div>
-
-                        <!-- Card 3 -->
-                        <div class="notification-card notif-system" data-type="system">
-                            <div class="notif-icon-wrap">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                                    <line x1="9" y1="9" x2="15" y2="15"></line>
-                                    <line x1="15" y1="9" x2="9" y2="15"></line>
-                                </svg>
-                            </div>
-                            <div class="notif-text">
-                                <div class="notif-meta-row">
-                                    <span class="notif-tag">System Notice</span>
-                                    <span class="notif-time">1 day ago</span>
-                                </div>
-                                <h3 class="notif-title">Server Maintenance Completed</h3>
-                                <p class="notif-desc">We successfully updated our core servers to improve speed across all API delivery networks. No downtime was experienced.</p>
-                            </div>
-                            <div class="notif-action-dot"></div>
-                        </div>
-
-                        <!-- Card 4 -->
-                        <div class="notification-card notif-promo" data-type="promo">
-                            <div class="notif-icon-wrap">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <polyline points="20 12 20 22 4 22 4 12"></polyline>
-                                    <rect x="2" y="7" width="20" height="5"></rect>
-                                    <line x1="12" y1="22" x2="12" y2="7"></line>
-                                    <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path>
-                                    <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
-                                </svg>
-                            </div>
-                            <div class="notif-text">
-                                <div class="notif-meta-row">
-                                    <span class="notif-tag">Special Promo</span>
-                                    <span class="notif-time">2 days ago</span>
-                                </div>
-                                <h3 class="notif-title">Get 12% extra funds on next deposit!</h3>
-                                <p class="notif-desc">Add funds using Binance Pay or Crypto and get 12% instant bonus credited manually. Offer valid till end of the week.</p>
-                            </div>
-                            <div class="notif-action-dot"></div>
-                        </div>
-
-                        <!-- Card 5 -->
-                        <div class="notification-card notif-order" data-type="orders">
-                            <div class="notif-icon-wrap">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <line x1="12" y1="8" x2="12" y2="12"></line>
-                                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                                </svg>
-                            </div>
-                            <div class="notif-text">
-                                <div class="notif-meta-row">
-                                    <span class="notif-tag">Order Processing</span>
-                                    <span class="notif-time">3 days ago</span>
-                                </div>
-                                <h3 class="notif-title">Order #12842 is now Processing</h3>
-                                <p class="notif-desc">Your order for 5,000 YouTube Views has been verified and is in the processing pipeline.</p>
-                            </div>
-                            <div class="notif-action-dot"></div>
-                        </div>
+                        <h1>Notification <em>Preferences</em></h1>
                     </div>
                 </div>
 
-                <!-- TAB: SETTINGS PANE -->
-                <div class="tab-pane" id="settings-pane">
+                <div class="tab-pane active" id="settings-pane">
                     <!-- Success Alert -->
                     <div class="alert-success" id="settings-alert" style="display: none;">
                         <span style="display: flex; align-items: center; gap: 8px;">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                            Changes saved successfully
+                            <span id="settings-alert-text">Changes saved successfully</span>
                         </span>
                         <button class="close-btn" id="btn-close-alert">&times;</button>
                     </div>
@@ -1161,6 +1198,34 @@
                         </button>
                     </div>
                 </div>
+
+                <div class="tab-pane active" id="preferences-table-pane">
+                    <div class="preferences-section-title">
+                        Saved preferences <span id="preferences-count">0 items</span>
+                    </div>
+                    <div class="settings-card">
+                        <div class="preferences-table-wrap">
+                            <table class="preferences-table">
+                                <thead>
+                                    <tr>
+                                        <th>User</th>
+                                        <th>Type</th>
+                                        <th>Email</th>
+                                        <th>Telegram</th>
+                                        <th>Connected</th>
+                                        <th>Updated</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="preferences-table-body">
+                                    <tr>
+                                        <td colspan="6" style="text-align:center;">Loading preferences...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="preferences-pagination" id="preferences-pagination"></div>
+                    </div>
+                </div>
             </div>
         </main>
     </div>
@@ -1173,90 +1238,9 @@
             sidebar.classList.toggle('active');
         });
 
-        // Close sidebar when clicking outside on mobile
-        document.addEventListener('click', (e) => {
-            if (window.innerWidth <= 1100) {
-                if (!sidebar.contains(e.target) && !mobileToggle.contains(e.target)) {
-                    sidebar.classList.remove('active');
-                }
-            }
-        });
-
-        // ── TABS SWITCHING LOGIC ──
-        const tabInboxBtn = document.getElementById('tab-inbox-btn');
-        const tabSettingsBtn = document.getElementById('tab-settings-btn');
-        const inboxPane = document.getElementById('inbox-pane');
-        const settingsPane = document.getElementById('settings-pane');
-        const btnMarkAll = document.getElementById('btn-mark-all');
-
-        tabInboxBtn.addEventListener('click', () => {
-            tabInboxBtn.classList.add('active');
-            tabSettingsBtn.classList.remove('active');
-            inboxPane.classList.add('active');
-            settingsPane.classList.remove('active');
-            btnMarkAll.style.display = 'inline-flex';
-        });
-
-        tabSettingsBtn.addEventListener('click', () => {
-            tabSettingsBtn.classList.add('active');
-            tabInboxBtn.classList.remove('active');
-            settingsPane.classList.add('active');
-            inboxPane.classList.remove('active');
-            btnMarkAll.style.display = 'none';
-        });
-
-        // Interactive read/unread state
-        const notifCards = document.querySelectorAll('.notification-card');
-        notifCards.forEach(card => {
-            card.addEventListener('click', () => {
-                card.classList.remove('unread');
-                updateNotifDot();
-            });
-        });
-
-        // Mark all as read
-        btnMarkAll.addEventListener('click', () => {
-            notifCards.forEach(card => {
-                card.classList.remove('unread');
-            });
-            updateNotifDot();
-        });
-
-        // Filter Logic
-        const filterChips = document.querySelectorAll('.filter-chip');
-        filterChips.forEach(chip => {
-            chip.addEventListener('click', () => {
-                // Toggle active chip
-                filterChips.forEach(c => c.classList.remove('active'));
-                chip.classList.add('active');
-
-                const filter = chip.getAttribute('data-filter');
-                notifCards.forEach(card => {
-                    if (filter === 'all' || card.getAttribute('data-type') === filter) {
-                        card.style.display = 'grid';
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
-            });
-        });
-
-        // Check if there are any unread notifications and update the red badge dot in header
-        function updateNotifDot() {
-            const hasUnread = Array.from(notifCards).some(c => c.classList.contains('unread'));
-            const headerDots = document.querySelectorAll('.notification-dot');
-            headerDots.forEach(dot => {
-                if (!hasUnread) {
-                    dot.style.display = 'none';
-                } else {
-                    dot.style.display = 'block';
-                }
-            });
-        }
-        updateNotifDot();
-
         // ── TELEGRAM DYNAMIC CONNECTION ──
-        const btnTgConnect = document.getElementById('btn-tg-connect');
+        const btnTgConnectOld = document.getElementById('btn-tg-connect');
+        const btnTgConnect = { addEventListener: () => {} };
         let isConnected = false;
 
         btnTgConnect.addEventListener('click', () => {
@@ -1307,6 +1291,645 @@
             if (alertTimeout) clearTimeout(alertTimeout);
         });
     </script>
+    <script>
+        document.addEventListener('click', (event) => {
+            if (window.innerWidth <= 1100 && !sidebar.contains(event.target) && !mobileToggle.contains(event.target)) {
+                sidebar.classList.remove('active');
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            return;
+            const STORAGE_KEYS = {
+                read: 'smm_read_notifications',
+                prefs: 'smm_notification_preferences',
+                telegram: 'smm_telegram_connected'
+            };
+
+            const list = document.getElementById('notification-list');
+            const inboxCount = document.getElementById('inbox-count');
+            const topDot = document.querySelector('.notification-dot');
+            const markReadButton = document.getElementById('btn-mark-read');
+            const filterButtons = Array.from(document.querySelectorAll('.filter-chip'));
+            const tabButtons = Array.from(document.querySelectorAll('.notif-tab-btn'));
+            const tabPanes = Array.from(document.querySelectorAll('.tab-pane'));
+            const telegramButton = document.getElementById('btn-tg-connect');
+            const savePrefsButton = document.getElementById('btn-save-prefs');
+            const settingsAlert = document.getElementById('settings-alert');
+            const closeAlertButton = document.getElementById('btn-close-alert');
+            const icons = { order: '#', payment: '$', system: '!', promo: '%' };
+            let activeFilter = 'all';
+            let notifications = [];
+            let alertTimeout;
+
+            function readJson(key, fallback) {
+                try {
+                    return JSON.parse(localStorage.getItem(key)) ?? fallback;
+                } catch (_error) {
+                    return fallback;
+                }
+            }
+
+            function writeJson(key, value) {
+                localStorage.setItem(key, JSON.stringify(value));
+            }
+
+            function escapeHtml(value) {
+                return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                }[char]));
+            }
+
+            function currentUserId() {
+                const user = window.SmmApi?.getCurrentUser?.();
+                return user?.id || sessionStorage.getItem('user_id') || localStorage.getItem('user_id') || '';
+            }
+
+            function itemsFromPayload(payload) {
+                return payload?.data?.data || payload?.data || [];
+            }
+
+            function relativeTime(value) {
+                const date = new Date(value || Date.now());
+                const seconds = Math.max(1, Math.round((Date.now() - date.getTime()) / 1000));
+                const units = [
+                    ['year', 31536000],
+                    ['month', 2592000],
+                    ['day', 86400],
+                    ['hour', 3600],
+                    ['minute', 60]
+                ];
+                const unit = units.find((item) => seconds >= item[1]);
+                if (!unit) return 'Just now';
+                const amount = Math.floor(seconds / unit[1]);
+                return `${amount} ${unit[0]}${amount === 1 ? '' : 's'} ago`;
+            }
+
+            function fallbackNotifications() {
+                return [
+                    {
+                        id: 'system-welcome',
+                        type: 'system',
+                        tag: 'System',
+                        title: 'Welcome to your SMM Panel dashboard',
+                        desc: 'Account updates, order changes, payments, and panel alerts will appear here.',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: 'promo-starter',
+                        type: 'promo',
+                        tag: 'Promo',
+                        title: 'Keep an eye on service offers',
+                        desc: 'Promotional notifications are saved here so you can review them later.',
+                        createdAt: new Date(Date.now() - 3600000).toISOString()
+                    }
+                ];
+            }
+
+            async function loadDynamicNotifications() {
+                const api = window.SmmApi;
+                const userId = currentUserId();
+                const dynamic = [];
+
+                if (!api?.apiRequest) return fallbackNotifications();
+
+                const [ordersResult, paymentsResult] = await Promise.allSettled([
+                    api.apiRequest('/api/get_orders'),
+                    api.apiRequest('/api/get_payments')
+                ]);
+
+                if (ordersResult.status === 'fulfilled') {
+                    itemsFromPayload(ordersResult.value)
+                        .filter((order) => !userId || String(order.user_id) === String(userId))
+                        .slice(0, 12)
+                        .forEach((order) => {
+                            dynamic.push({
+                                id: `order-${order.id}`,
+                                type: 'order',
+                                tag: 'Order',
+                                title: `Order #${order.id} ${order.status || 'created'}`,
+                                desc: `${order.service?.name || 'Service order'} for ${order.quantity || 0} units.`,
+                                createdAt: order.updated_at || order.created_at || new Date().toISOString()
+                            });
+                        });
+                }
+
+                if (paymentsResult.status === 'fulfilled') {
+                    itemsFromPayload(paymentsResult.value)
+                        .filter((payment) => !userId || String(payment.user_id) === String(userId))
+                        .slice(0, 12)
+                        .forEach((payment) => {
+                            dynamic.push({
+                                id: `payment-${payment.id}`,
+                                type: 'payment',
+                                tag: 'Payment',
+                                title: `Payment #${payment.id} ${payment.status || 'pending'}`,
+                                desc: `${api.formatMoney?.(payment.amount) || payment.amount || 'Amount'} via ${payment.method || 'selected method'}.`,
+                                createdAt: payment.updated_at || payment.created_at || new Date().toISOString()
+                            });
+                        });
+                }
+
+                return [...dynamic, ...fallbackNotifications()]
+                    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            }
+
+            function getReadIds() {
+                return new Set(readJson(STORAGE_KEYS.read, []));
+            }
+
+            function setReadIds(ids) {
+                writeJson(STORAGE_KEYS.read, Array.from(ids));
+            }
+
+            function filteredNotifications() {
+                const readIds = getReadIds();
+                return notifications.filter((item) => {
+                    if (activeFilter === 'unread') return !readIds.has(item.id);
+                    if (activeFilter === 'all') return true;
+                    return item.type === activeFilter;
+                });
+            }
+
+            function updateBadges() {
+                const readIds = getReadIds();
+                const unreadCount = notifications.filter((item) => !readIds.has(item.id)).length;
+                inboxCount.textContent = unreadCount;
+                if (topDot) topDot.style.display = unreadCount ? '' : 'none';
+                markReadButton.disabled = unreadCount === 0;
+                markReadButton.style.opacity = unreadCount ? '1' : '0.55';
+            }
+
+            function renderNotifications() {
+                const readIds = getReadIds();
+                const visible = filteredNotifications();
+                updateBadges();
+
+                if (!visible.length) {
+                    list.innerHTML = '<div class="notification-state">No notifications found.</div>';
+                    return;
+                }
+
+                list.innerHTML = visible.map((item) => {
+                    const unread = !readIds.has(item.id);
+                    return `
+                        <article class="notification-card notif-${item.type} ${unread ? 'unread' : ''}" data-id="${escapeHtml(item.id)}">
+                            <div class="notif-icon-wrap">${icons[item.type] || '!'}</div>
+                            <div class="notif-text">
+                                <div class="notif-meta-row">
+                                    <span class="notif-tag">${escapeHtml(item.tag || item.type)}</span>
+                                    <span class="notif-time">${relativeTime(item.createdAt)}</span>
+                                </div>
+                                <h3 class="notif-title">${escapeHtml(item.title)}</h3>
+                                <p class="notif-desc">${escapeHtml(item.desc)}</p>
+                            </div>
+                            <div class="notif-action-dot"></div>
+                        </article>
+                    `;
+                }).join('');
+
+                list.querySelectorAll('.notification-card').forEach((card) => {
+                    card.addEventListener('click', () => {
+                        const nextReadIds = getReadIds();
+                        nextReadIds.add(card.dataset.id);
+                        setReadIds(nextReadIds);
+                        renderNotifications();
+                    });
+                });
+            }
+
+            function showSettingsAlert() {
+                settingsAlert.style.display = 'flex';
+                settingsAlert.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                if (alertTimeout) clearTimeout(alertTimeout);
+                alertTimeout = setTimeout(() => {
+                    settingsAlert.style.display = 'none';
+                }, 4000);
+            }
+
+            function syncTelegramButton() {
+                const isConnected = localStorage.getItem(STORAGE_KEYS.telegram) === 'true';
+                telegramButton.classList.toggle('connected', isConnected);
+                telegramButton.innerHTML = isConnected ? 'Connected <span style="margin-left: 4px;">OK</span>' : 'Connect';
+            }
+
+            function loadPreferences() {
+                const prefs = readJson(STORAGE_KEYS.prefs, {});
+                document.querySelectorAll('.settings-table input[type="checkbox"]').forEach((input) => {
+                    if (Object.prototype.hasOwnProperty.call(prefs, input.id)) {
+                        input.checked = Boolean(prefs[input.id]);
+                    }
+                });
+                syncTelegramButton();
+            }
+
+            tabButtons.forEach((button) => {
+                button.addEventListener('click', () => {
+                    tabButtons.forEach((item) => item.classList.toggle('active', item === button));
+                    tabPanes.forEach((pane) => pane.classList.toggle('active', pane.id === button.dataset.tab));
+                });
+            });
+
+            filterButtons.forEach((button) => {
+                button.addEventListener('click', () => {
+                    activeFilter = button.dataset.filter || 'all';
+                    filterButtons.forEach((item) => item.classList.toggle('active', item === button));
+                    renderNotifications();
+                });
+            });
+
+            markReadButton.addEventListener('click', () => {
+                setReadIds(new Set(notifications.map((item) => item.id)));
+                renderNotifications();
+            });
+
+            telegramButton.addEventListener('click', () => {
+                const isConnected = localStorage.getItem(STORAGE_KEYS.telegram) === 'true';
+                telegramButton.disabled = true;
+                telegramButton.textContent = isConnected ? 'Disconnecting...' : 'Connecting...';
+                setTimeout(() => {
+                    localStorage.setItem(STORAGE_KEYS.telegram, String(!isConnected));
+                    telegramButton.disabled = false;
+                    syncTelegramButton();
+                }, 500);
+            });
+
+            savePrefsButton.addEventListener('click', () => {
+                const prefs = {};
+                document.querySelectorAll('.settings-table input[type="checkbox"]').forEach((input) => {
+                    prefs[input.id] = input.checked;
+                });
+                writeJson(STORAGE_KEYS.prefs, prefs);
+                showSettingsAlert();
+            });
+
+            closeAlertButton.addEventListener('click', () => {
+                settingsAlert.style.display = 'none';
+                if (alertTimeout) clearTimeout(alertTimeout);
+            });
+
+            loadPreferences();
+            loadDynamicNotifications()
+                .then((items) => {
+                    notifications = items;
+                    renderNotifications();
+                })
+                .catch((error) => {
+                    notifications = fallbackNotifications();
+                    renderNotifications();
+                    console.warn(error);
+                });
+        });
+    </script>
+    <script>
+        (() => {
+            const API_BASE_URL = window.SMM_API_BASE_URL || 'http://127.0.0.1:8000';
+            const ENDPOINTS = {
+                getPreferences: '/api/get_notification_preferences',
+                createPreference: '/api/create_notification_preference'
+            };
+            const TYPES = {
+                apiKeyChanged: 'api_key_changed',
+                newMessage: 'new_message'
+            };
+            const LOCAL_KEY = 'smm_notification_settings';
+
+            const oldTelegramButton = document.getElementById('btn-tg-connect');
+            const oldSaveButton = document.getElementById('btn-save-prefs');
+            const telegramButton = oldTelegramButton.cloneNode(true);
+            const saveButton = oldSaveButton.cloneNode(true);
+            oldTelegramButton.replaceWith(telegramButton);
+            oldSaveButton.replaceWith(saveButton);
+
+            const settingsAlert = document.getElementById('settings-alert');
+            const settingsAlertText = document.getElementById('settings-alert-text');
+            const closeAlertButton = document.getElementById('btn-close-alert');
+            const preferencesTableBody = document.getElementById('preferences-table-body');
+            const preferencesCount = document.getElementById('preferences-count');
+            const preferencesPagination = document.getElementById('preferences-pagination');
+            const preferencesPerPage = 10;
+            let alertTimeout;
+            let telegramConnected = false;
+            let preferenceRows = [];
+            let currentPreferencePage = 1;
+
+            function getToken() {
+                return localStorage.getItem('api_token') || sessionStorage.getItem('api_token') || '';
+            }
+
+            function getCurrentUserId() {
+                const rawUser = localStorage.getItem('smm_user') || sessionStorage.getItem('smm_user');
+                try {
+                    return JSON.parse(rawUser || '{}').id || sessionStorage.getItem('user_id') || localStorage.getItem('user_id') || '';
+                } catch (_error) {
+                    return sessionStorage.getItem('user_id') || localStorage.getItem('user_id') || '';
+                }
+            }
+
+            async function apiRequest(path, options = {}) {
+                const token = getToken();
+                const headers = {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    ...(options.headers || {})
+                };
+                if (token) headers.Authorization = `Bearer ${token}`;
+
+                const response = await fetch(`${API_BASE_URL}${path}`, { ...options, headers });
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok || data.status === false) {
+                    throw new Error(data.error || data.message || 'Request failed.');
+                }
+                return data;
+            }
+
+            function escapeHtml(value) {
+                return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                }[char]));
+            }
+
+            function itemsFromPayload(payload) {
+                return payload?.data?.data || payload?.data || [];
+            }
+
+            async function getAllPreferenceRows() {
+                const firstPayload = await apiRequest(ENDPOINTS.getPreferences);
+                const firstItems = itemsFromPayload(firstPayload);
+                const lastPage = Number(firstPayload.data?.last_page || 1);
+                const pageRequests = [];
+
+                for (let page = 2; page <= lastPage; page += 1) {
+                    pageRequests.push(apiRequest(`${ENDPOINTS.getPreferences}?page=${page}`));
+                }
+
+                const results = await Promise.allSettled(pageRequests);
+                const restItems = results.flatMap((result) => (
+                    result.status === 'fulfilled' ? itemsFromPayload(result.value) : []
+                ));
+
+                return [...firstItems, ...restItems];
+            }
+
+            function showAlert(message, isError = false) {
+                settingsAlertText.textContent = message;
+                settingsAlert.classList.toggle('error', isError);
+                settingsAlert.style.display = 'flex';
+                settingsAlert.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                if (alertTimeout) clearTimeout(alertTimeout);
+                alertTimeout = setTimeout(() => {
+                    settingsAlert.style.display = 'none';
+                }, 4000);
+            }
+
+            function collectSettings() {
+                const userId = getCurrentUserId();
+                if (!userId) throw new Error('Please login before saving notification preferences.');
+
+                return {
+                    user_id: userId,
+                    telegram_connected: telegramConnected,
+                    preferences: {
+                        api_key_changed: {
+                            email: document.getElementById('pref-api-email').checked,
+                            telegram: document.getElementById('pref-api-tg').checked
+                        },
+                        new_message: {
+                            email: document.getElementById('pref-msg-email').checked,
+                            telegram: document.getElementById('pref-msg-tg').checked
+                        }
+                    }
+                };
+            }
+
+            function normalizePreferences(items = []) {
+                const latestByType = {};
+                items.forEach((item) => {
+                    if (!item?.type || latestByType[item.type]) return;
+                    latestByType[item.type] = item;
+                });
+
+                return {
+                    telegram_connected: Object.values(latestByType).some((item) => Boolean(item.telegram_connected)),
+                    preferences: {
+                        api_key_changed: {
+                            email: latestByType[TYPES.apiKeyChanged]?.email_enabled,
+                            telegram: latestByType[TYPES.apiKeyChanged]?.telegram_enabled
+                        },
+                        new_message: {
+                            email: latestByType[TYPES.newMessage]?.email_enabled,
+                            telegram: latestByType[TYPES.newMessage]?.telegram_enabled
+                        }
+                    }
+                };
+            }
+
+            function applySettings(settings = {}) {
+                const preferences = settings.preferences || {};
+                const apiPrefs = preferences.api_key_changed || {};
+                const messagePrefs = preferences.new_message || {};
+
+                if (apiPrefs.email !== undefined) document.getElementById('pref-api-email').checked = Boolean(apiPrefs.email);
+                if (apiPrefs.telegram !== undefined) document.getElementById('pref-api-tg').checked = Boolean(apiPrefs.telegram);
+                if (messagePrefs.email !== undefined) document.getElementById('pref-msg-email').checked = Boolean(messagePrefs.email);
+                if (messagePrefs.telegram !== undefined) document.getElementById('pref-msg-tg').checked = Boolean(messagePrefs.telegram);
+
+                telegramConnected = Boolean(settings.telegram_connected ?? telegramConnected);
+                renderTelegramButton();
+            }
+
+            function renderTelegramButton() {
+                telegramButton.classList.toggle('connected', telegramConnected);
+                telegramButton.innerHTML = telegramConnected ? 'Connected <span style="margin-left: 4px;">OK</span>' : 'Connect';
+            }
+
+            function formatType(type) {
+                return String(type || '-')
+                    .replace(/_/g, ' ')
+                    .replace(/\b\w/g, (char) => char.toUpperCase());
+            }
+
+            function formatUser(item) {
+                return item.user?.username || item.user?.name || item.user?.email || item.user_id || '-';
+            }
+
+            function formatDate(value) {
+                if (!value) return '-';
+                const date = new Date(value);
+                if (Number.isNaN(date.getTime())) return '-';
+                return date.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
+            }
+
+            function yesNo(value) {
+                return `<span class="preference-badge ${value ? 'enabled' : 'disabled'}">${value ? 'Yes' : 'No'}</span>`;
+            }
+
+            function renderPreferencePagination(totalItems, page) {
+                const lastPage = Math.max(1, Math.ceil(totalItems / preferencesPerPage));
+                const safePage = Math.min(Math.max(1, page), lastPage);
+                const from = totalItems ? ((safePage - 1) * preferencesPerPage) + 1 : 0;
+                const to = Math.min(safePage * preferencesPerPage, totalItems);
+                const pages = Array.from({ length: lastPage }, (_item, index) => index + 1);
+
+                preferencesPagination.innerHTML = `
+                    <button class="pagination-btn" type="button" data-page="${safePage - 1}" ${safePage <= 1 ? 'disabled' : ''}>Previous</button>
+                    ${pages.map((pageNumber) => `
+                        <button class="pagination-btn ${pageNumber === safePage ? 'active' : ''}" type="button" data-page="${pageNumber}">${pageNumber}</button>
+                    `).join('')}
+                    <button class="pagination-btn" type="button" data-page="${safePage + 1}" ${safePage >= lastPage ? 'disabled' : ''}>Next</button>
+                    <div class="pagination-summary">Showing ${from}-${to} of ${totalItems} preferences</div>
+                `;
+
+                preferencesPagination.querySelectorAll('.pagination-btn').forEach((button) => {
+                    button.addEventListener('click', () => {
+                        const nextPage = Number(button.dataset.page);
+                        if (!nextPage || nextPage === currentPreferencePage) return;
+                        currentPreferencePage = nextPage;
+                        renderPreferenceRows(preferenceRows, currentPreferencePage);
+                    });
+                });
+            }
+
+            function renderPreferenceRows(items, page = 1) {
+                const totalItems = items.length;
+                const lastPage = Math.max(1, Math.ceil(totalItems / preferencesPerPage));
+                const safePage = Math.min(Math.max(1, page), lastPage);
+                const start = (safePage - 1) * preferencesPerPage;
+                const pageItems = items.slice(start, start + preferencesPerPage);
+
+                currentPreferencePage = safePage;
+                preferencesCount.textContent = `${totalItems} item${totalItems === 1 ? '' : 's'}`;
+
+                if (!pageItems.length) {
+                    preferencesTableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No preferences found.</td></tr>';
+                    renderPreferencePagination(totalItems, safePage);
+                    return;
+                }
+
+                preferencesTableBody.innerHTML = pageItems.map((item) => `
+                    <tr>
+                        <td>${escapeHtml(formatUser(item))}</td>
+                        <td class="preference-type">${escapeHtml(formatType(item.type))}</td>
+                        <td>${yesNo(Boolean(item.email_enabled))}</td>
+                        <td>${yesNo(Boolean(item.telegram_enabled))}</td>
+                        <td>${yesNo(Boolean(item.telegram_connected))}</td>
+                        <td class="preference-date">${escapeHtml(formatDate(item.updated_at || item.created_at))}</td>
+                    </tr>
+                `).join('');
+                renderPreferencePagination(totalItems, safePage);
+            }
+
+            async function loadSettings() {
+                const cached = localStorage.getItem(LOCAL_KEY);
+                if (cached) {
+                    try {
+                        applySettings(JSON.parse(cached));
+                    } catch (_error) {
+                        localStorage.removeItem(LOCAL_KEY);
+                    }
+                }
+
+                try {
+                    const userId = getCurrentUserId();
+                    const items = await getAllPreferenceRows();
+                    const userItems = userId
+                        ? items.filter((item) => String(item.user_id) === String(userId))
+                        : items;
+
+                    preferenceRows = items;
+                    renderPreferenceRows(preferenceRows, currentPreferencePage);
+
+                    const settings = normalizePreferences(userItems);
+                    localStorage.setItem(LOCAL_KEY, JSON.stringify(settings));
+                    applySettings(settings);
+                } catch (error) {
+                    preferencesCount.textContent = '0 items';
+                    preferencesTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">${escapeHtml(error.message || 'Could not load preferences.')}</td></tr>`;
+                    showAlert(error.message || 'Could not load notification settings.', true);
+                }
+            }
+
+            async function saveSettings() {
+                let settings;
+                try {
+                    settings = collectSettings();
+                } catch (error) {
+                    showAlert(error.message, true);
+                    return;
+                }
+
+                saveButton.disabled = true;
+                saveButton.textContent = 'Saving...';
+
+                try {
+                    const payloads = [
+                        {
+                            user_id: settings.user_id,
+                            type: TYPES.apiKeyChanged,
+                            email_enabled: settings.preferences.api_key_changed.email,
+                            telegram_enabled: settings.preferences.api_key_changed.telegram,
+                            telegram_connected: settings.telegram_connected
+                        },
+                        {
+                            user_id: settings.user_id,
+                            type: TYPES.newMessage,
+                            email_enabled: settings.preferences.new_message.email,
+                            telegram_enabled: settings.preferences.new_message.telegram,
+                            telegram_connected: settings.telegram_connected
+                        }
+                    ];
+
+                    await Promise.all(payloads.map((payload) => apiRequest(ENDPOINTS.createPreference, {
+                        method: 'POST',
+                        body: JSON.stringify(payload)
+                    })));
+
+                    localStorage.setItem(LOCAL_KEY, JSON.stringify(settings));
+                    applySettings(settings);
+                    showAlert('Changes saved successfully');
+                    loadSettings();
+                } catch (error) {
+                    localStorage.setItem(LOCAL_KEY, JSON.stringify(settings));
+                    showAlert(error.message || 'Saved locally. Backend request failed.', true);
+                } finally {
+                    saveButton.disabled = false;
+                    saveButton.textContent = 'Save changes';
+                }
+            }
+
+            async function toggleTelegram() {
+                if (!getCurrentUserId()) {
+                    showAlert('Please login before connecting Telegram notifications.', true);
+                    return;
+                }
+
+                telegramConnected = !telegramConnected;
+                renderTelegramButton();
+                await saveSettings();
+            }
+
+            telegramButton.addEventListener('click', toggleTelegram);
+            saveButton.addEventListener('click', saveSettings);
+            closeAlertButton.addEventListener('click', () => {
+                settingsAlert.style.display = 'none';
+                if (alertTimeout) clearTimeout(alertTimeout);
+            });
+
+            renderTelegramButton();
+            loadSettings();
+        })();
+    </script>
+    <script src="static/js/smm-api.js"></script>
+    <script src="static/js/logout.js"></script>
+    <script src="static/js/whatsapp-widget.js"></script>
 </body>
 
 </html>
