@@ -66,10 +66,19 @@ class ReferralController extends Controller
         try {
 
             $request->validate([
-                'referrer_id' => 'required|exists:smmusers,id',
+                'referrer_id' => 'nullable|exists:smmusers,id|required_without:ref',
+                'ref' => 'nullable|string|required_without:referrer_id',
             ]);
 
-            $user = SmmUser::find($request->referrer_id);
+            $user = $this->getReferrerFromRequest($request);
+
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Invalid referral code'
+                ], 422);
+            }
+
             $referral = $this->getOrCreateReferral($user);
 
             $referral->increment('visits');
@@ -105,12 +114,31 @@ class ReferralController extends Controller
         return null;
     }
 
+    private function getReferrerFromRequest(Request $request): ?SmmUser
+    {
+        if ($request->referrer_id) {
+            return SmmUser::find($request->referrer_id);
+        }
+
+        if (!$request->ref) {
+            return null;
+        }
+
+        $referrerId = preg_replace('/\D/', '', (string) $request->ref);
+
+        if (!$referrerId) {
+            return null;
+        }
+
+        return SmmUser::find($referrerId);
+    }
+
     private function getOrCreateReferral(SmmUser $user)
     {
-        return Referral::firstOrCreate(
+        $referral = Referral::firstOrCreate(
             ['referrer_id' => $user->id],
             [
-                'referral_link' => url('/ref/user' . $user->id),
+                'referral_link' => $this->getReferralLink($user),
                 'commission_rate' => 3,
                 'total_earnings' => 0,
                 'available_earnings' => 0,
@@ -118,5 +146,22 @@ class ReferralController extends Controller
                 'conversion_rate' => 0,
             ]
         );
+
+        $referralLink = $this->getReferralLink($user);
+
+        if ($referral->referral_link !== $referralLink) {
+            $referral->update([
+                'referral_link' => $referralLink,
+            ]);
+        }
+
+        return $referral;
+    }
+
+    private function getReferralLink(SmmUser $user): string
+    {
+        $frontendUrl = rtrim(env('FRONTEND_URL', config('app.url')), '/');
+
+        return $frontendUrl . '/signup.html?ref=' . $user->id;
     }
 }

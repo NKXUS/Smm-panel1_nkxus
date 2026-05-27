@@ -15,13 +15,28 @@ use Illuminate\Support\Str;
 class SmmUserController extends Controller
 {
    
-    public function getUsers()
+    public function getUsers(Request $request)
 {
+    $token = $request->bearerToken() ?? $request->api_token;
+    $requestUser = $token ? SmmUser::where('api_token', $token)->first() : null;
+    $isAdmin = strtolower((string) $requestUser?->role) === 'admin';
+
     $users = SmmUser::paginate(10);
+
+    if ($isAdmin) {
+        $users->getCollection()->transform(function (SmmUser $user) {
+            if (!$user->api_key) {
+                $user->api_key = Str::random(80);
+                $user->save();
+            }
+
+            return $user->makeVisible('api_key');
+        });
+    }
 
     return response()->json([
         'status' => true,
-        'total_users' => $users->count(),
+        'total_users' => $users->total(),
         'data' => $users
     ]);
 }
@@ -35,6 +50,7 @@ class SmmUserController extends Controller
         'password' => Hash::make($request->password),
         'balance' => $request->balance,
         'api_key' => $request->api_key ?? Str::random(80),
+        'role' => 'client',
         'language' => $request->language,
         'timezone' => $request->timezone,
         'currency' => $request->currency,
@@ -50,7 +66,17 @@ class SmmUserController extends Controller
 
 public function signUp(Request $request)
 {
-   
+    $request->validate([
+        'username' => 'required|string|max:255',
+        'email' => 'required|email|max:255',
+        'phone_number' => 'nullable|string|max:20',
+        'password' => 'required|string|min:6',
+        'language' => 'nullable|string|max:50',
+        'currency' => 'nullable|string|max:10',
+        'referrer_id' => 'nullable|exists:smmusers,id',
+        'ref' => 'nullable|string',
+    ]);
+
     $existingUser = SmmUser::where('email', $request->email)
         ->orWhere('username', $request->username)
         // ->orWhere('phone_number', $request->phone_number)
@@ -63,37 +89,55 @@ public function signUp(Request $request)
         ], 409);
     }
 
-    $referrer = null;
+    $referrer = $this->getReferrerFromRequest($request);
 
-    if ($request->referrer_id) {
-        $referrer = SmmUser::find($request->referrer_id);
+    if (($request->filled('referrer_id') || $request->filled('ref')) && !$referrer) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Invalid referral code'
+        ], 422);
     }
 
-    $user = SmmUser::create([
-        'username' => $request->username,
-        'email' => $request->email,
-        // 'phone_number' => $request->phone_number,
-        'password' => Hash::make($request->password),
-        'api_key' => Str::random(80),
-        'referrer_id' => $referrer ? $referrer->id : null,
-    ]);
+    $user = DB::transaction(function () use ($request, $referrer) {
+        $user = SmmUser::create([
+            'username' => $request->username,
+            'email' => $request->email,
+            'phone_number' => $request->phone_number,
+            'password' => Hash::make($request->password),
+            'api_key' => Str::random(80),
+            'role' => 'client',
+            'language' => $request->language ?? 'english',
+            'currency' => $request->currency ?? 'INR',
+            'referrer_id' => $referrer?->id,
+        ]);
 
-    if ($referrer) {
-        $referral = Referral::firstOrCreate(
-            ['referrer_id' => $referrer->id],
-            [
-                'referral_link' => url('/ref/user' . $referrer->id),
-                'commission_rate' => 3,
-                'total_earnings' => 0,
-                'available_earnings' => 0,
-                'min_payout' => 10,
-                'conversion_rate' => 0,
-            ]
-        );
+        if ($referrer) {
+            $referral = Referral::firstOrCreate(
+                ['referrer_id' => $referrer->id],
+                [
+                    'referral_link' => $this->getReferralLink($referrer),
+                    'commission_rate' => 3,
+                    'total_earnings' => 0,
+                    'available_earnings' => 0,
+                    'min_payout' => 10,
+                    'conversion_rate' => 0,
+                ]
+            );
 
-        $referral->increment('registrations');
-        $referral->increment('referrals_count');
-    }
+            $referralLink = $this->getReferralLink($referrer);
+
+            if ($referral->referral_link !== $referralLink) {
+                $referral->update([
+                    'referral_link' => $referralLink,
+                ]);
+            }
+
+            $referral->increment('registrations');
+            $referral->increment('referrals_count');
+        }
+
+        return $user;
+    });
 
     return response()->json([
         'status' => true,
@@ -101,9 +145,36 @@ public function signUp(Request $request)
         'data' => $user
     ], 201);
 }
+
+private function getReferrerFromRequest(Request $request): ?SmmUser
+{
+    if ($request->referrer_id) {
+        return SmmUser::find($request->referrer_id);
+    }
+
+    if (!$request->ref) {
+        return null;
+    }
+
+    $referrerId = preg_replace('/\D/', '', (string) $request->ref);
+
+    if (!$referrerId) {
+        return null;
+    }
+
+    return SmmUser::find($referrerId);
+}
+
+private function getReferralLink(SmmUser $user): string
+{
+    $frontendUrl = rtrim(env('FRONTEND_URL', config('app.url')), '/');
+
+    return $frontendUrl . '/signup.html?ref=' . $user->id;
+}
+
 public function signIn(Request $request)
 {
-    $user = SmmUser::where('username', $request->username)->first();
+    $user = SmmUser::where('email', $request->email)->first();
 
     // Check user exists
     if (!$user) {
@@ -133,7 +204,14 @@ public function signIn(Request $request)
         'message' => 'Login successful',
         'token' => $token,
         'token_type' => 'Bearer',
-        'redirect' => '/home'
+        'user' => [
+            'id' => $user->id,
+            'username' => $user->username,
+            'email' => $user->email,
+            'balance' => $user->balance,
+            'role' => $user->role,
+        ],
+        'redirect' => '/dashboard.html'
     ]);
 }
 
@@ -166,8 +244,8 @@ public function logout(Request $request)
         return response()->json([
             'status' => true,
             'message' => 'Logout successful',
-            'redirect' => '/signin'
-        ], 200);
+                'redirect' => '/index.html'
+            ], 200);
 
     } catch (\Exception $e) {
 
@@ -206,9 +284,39 @@ public function forgotPassword(Request $request)
             ]
         );
 
-        $resetLink = url('/reset-password?token=' . $token . '&email=' . urlencode($request->email));
+        $frontendUrl = rtrim(env('FRONTEND_URL', config('app.url')), '/');
+        $resetLink = $frontendUrl . '/reset-password.html?token=' . $token . '&email=' . urlencode($request->email);
+        $safeUsername = e($user->username);
+        $safeResetLink = e($resetLink);
 
-        Mail::raw("Hello {$user->username},\n\nUse this link to reset your password:\n{$resetLink}\n\nIf you did not request this, please ignore this email.", function ($message) use ($request) {
+        $emailContent = <<<HTML
+<!DOCTYPE html>
+<html>
+<body style="margin:0;padding:0;background-color:#f6f7fb;font-family:Arial,sans-serif;color:#1f2937;">
+    <div style="max-width:560px;margin:0 auto;padding:32px 20px;">
+        <div style="background-color:#ffffff;border-radius:8px;padding:28px;border:1px solid #e5e7eb;">
+            <h2 style="margin:0 0 16px;font-size:22px;color:#111827;">Reset your password</h2>
+            <p style="margin:0 0 16px;font-size:15px;line-height:1.6;">Hello {$safeUsername},</p>
+            <p style="margin:0 0 24px;font-size:15px;line-height:1.6;">
+                Click the button below to create a new password for your account.
+            </p>
+            <a href="{$safeResetLink}" style="display:inline-block;background-color:#2563eb;color:#ffffff;text-decoration:none;padding:12px 20px;border-radius:6px;font-size:15px;font-weight:bold;">
+                Reset Password
+            </a>
+            <p style="margin:24px 0 0;font-size:13px;line-height:1.6;color:#6b7280;">
+                If the button does not work, copy and paste this link into your browser:<br>
+                <a href="{$safeResetLink}" style="color:#2563eb;word-break:break-all;">{$safeResetLink}</a>
+            </p>
+            <p style="margin:20px 0 0;font-size:13px;line-height:1.6;color:#6b7280;">
+                If you did not request this, please ignore this email.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+HTML;
+
+        Mail::html($emailContent, function ($message) use ($request) {
             $message->to($request->email)
                 ->subject('Reset your password');
         });
@@ -277,7 +385,8 @@ public function resetPassword(Request $request)
 
         return response()->json([
             'status' => true,
-            'message' => 'Password reset successfully'
+            'message' => 'Password reset successfully',
+            'redirect' => '/index.html'
         ], 200);
 
     } catch (\Exception $e) {

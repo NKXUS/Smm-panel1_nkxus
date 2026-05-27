@@ -17,7 +17,7 @@ class PayoutController extends Controller
             $request->validate([
                 'user_id' => 'required|exists:smmusers,id',
                 'amount' => 'required|numeric|min:1',
-                'status' => 'nullable|in:pending,paid',
+                'status' => 'nullable|in:pending,paid,success',
                 'payout_date' => 'nullable|date',
             ]);
 
@@ -50,17 +50,24 @@ class PayoutController extends Controller
                 'referral_id' => $referral->id,
                 'amount' => $request->amount,
                 'status' => $status,
-                'payout_date' => $status === 'paid'
+                'payout_date' => in_array($status, ['paid', 'success'])
                     ? ($request->payout_date ?? now()->toDateString())
                     : null,
             ]);
 
             $referral->decrement('available_earnings', $request->amount);
 
+            $user = SmmUser::find($request->user_id);
+            if (in_array($status, ['paid', 'success']) && $user) {
+                $user->increment('balance', $request->amount);
+                $user = $user->fresh();
+            }
+
             return response()->json([
                 'status' => true,
                 'message' => 'Payout request created successfully',
-                'data' => $payout
+                'data' => $payout->fresh('referral'),
+                'user' => $user,
             ], 201);
 
         } catch (\Exception $e) {
@@ -124,7 +131,7 @@ class PayoutController extends Controller
 
             $request->validate([
                 'payout_id' => 'required|exists:payouts,id',
-                'status' => 'required|in:pending,approved,paid,rejected',
+                'status' => 'required|in:pending,approved,paid,success,rejected',
                 'payout_date' => 'nullable|date',
             ]);
 
@@ -133,7 +140,7 @@ class PayoutController extends Controller
 
             $payout->update([
                 'status' => $request->status,
-                'payout_date' => $request->status === 'paid'
+                'payout_date' => in_array($request->status, ['paid', 'success'])
                     ? ($request->payout_date ?? now()->toDateString())
                     : null,
             ]);

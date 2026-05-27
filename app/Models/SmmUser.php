@@ -19,6 +19,7 @@ class SmmUser extends Model
         'balance',
         'api_key',
         'api_token',
+        'role',
         'referrer_id',
         'language',
         'timezone',

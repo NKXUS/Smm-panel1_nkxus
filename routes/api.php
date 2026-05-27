@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Api\ServiceCategoryController;
 use App\Http\Controllers\Api\ServiceController;
 use App\Http\Controllers\Api\SmmUserController;
+use App\Http\Controllers\Api\ApiKeyController;
 use App\Http\Controllers\Api\NotificationPreferenceController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\PaymentController;
@@ -35,6 +36,10 @@ Route::post('/forgot_password', [SmmUserController::class, 'forgotPassword']);
 
 Route::post('/reset_password', [SmmUserController::class, 'resetPassword']);
 
+Route::get('/api-key', [ApiKeyController::class, 'show']);
+
+Route::post('/api-key/regenerate', [ApiKeyController::class, 'regenerate']);
+
 Route::post('/create_notification_preference', [NotificationPreferenceController::class, 'createNotificationPreference']);
 
 Route::get('/get_notification_preferences', [NotificationPreferenceController::class, 'getNotificationPreferences']);
@@ -53,9 +58,13 @@ Route::post('/create_order', [OrderController::class, 'createOrder']);
 
 Route::get('/get_orders', [OrderController::class, 'getOrders']);
 
+Route::post('/update_order_status', [OrderController::class, 'updateOrderStatus']);
+
 Route::post('/create_payment', [PaymentController::class, 'createPayment']);
 
 Route::get('/get_payments', [PaymentController::class, 'getPayment']);
+
+Route::post('/update_payment_status', [PaymentController::class, 'updatePaymentStatus']);
 
 Route::post('/create_payout', [PayoutController::class, 'createPayout']);
 
@@ -66,6 +75,8 @@ Route::post('/update_payout_status', [PayoutController::class, 'updatePayoutStat
 Route::post('/createmassorder', [MassOrderController::class, 'createMassOrder']);
 
 Route::get('/getmassorder', [MassOrderController::class, 'getMassOrders']);
+
+Route::post('/update_mass_order_status', [MassOrderController::class, 'updateMassOrderStatus']);
 
 Route::get('/referral_dashboard', [ReferralController::class, 'getReferralDashboard']);
 

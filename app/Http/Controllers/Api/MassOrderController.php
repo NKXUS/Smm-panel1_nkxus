@@ -58,4 +58,36 @@ class MassOrderController extends Controller
             ], 500);
         }
     }
+
+    public function updateMassOrderStatus(Request $request)
+    {
+        try {
+            $request->validate([
+                'mass_order_id' => 'required_without:id|integer|exists:mass_orders,id',
+                'id' => 'required_without:mass_order_id|integer|exists:mass_orders,id',
+                'status' => 'required|in:partial,pending,processing,completed',
+            ]);
+
+            $massOrderId = $request->mass_order_id ?? $request->id;
+            $massOrder = MassOrder::findOrFail($massOrderId);
+
+            $massOrder->update([
+                'status' => $request->status,
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Mass order status updated successfully',
+                'data' => $massOrder->fresh('user'),
+            ], 200);
+
+        } catch (\Throwable $e) {
+            $code = method_exists($e, 'getStatusCode') ? $e->getStatusCode() : 500;
+
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage() ?: 'Failed to update mass order status',
+            ], $code);
+        }
+    }
 }

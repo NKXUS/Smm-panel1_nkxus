@@ -1,2 +1,0 @@
-Primary color : #52906b
-Secondary color : #444444
