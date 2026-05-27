@@ -756,7 +756,7 @@
 
         <nav class="nav" id="nav-links">
             <a href="services.html" class="nav-link">Services</a>
-            <a href="#" class="nav-link">API</a>
+            <a href="api.html" class="nav-link">API</a>
             <a href="blog.html" class="nav-link">Blog</a>
             <a href="contact.html" class="nav-link">Contact</a>
             <a href="index.html" class="nav-link active">Login</a>
@@ -894,7 +894,7 @@
                 <h4>Platform</h4>
                 <ul class="footer-links">
                     <li><a href="services.html">Services</a></li>
-                    <li><a href="#">API Documentation</a></li>
+                    <li><a href="api.html">API Documentation</a></li>
                     <li><a href="blog.html">Blog & News</a></li>
                     <li><a href="#">Affiliate Program</a></li>
                 </ul>
@@ -992,7 +992,8 @@
 
                 showLoginMessage(data.message || 'Login successful.', 'success');
 
-                const redirectPath = data.redirect || 'dashboard.html';
+                const role = String(data.user?.role || 'client').toLowerCase();
+                const redirectPath = role === 'admin' ? 'admin.html' : 'dashboard.html';
                 window.location.href = redirectPath.replace(/^\/+/, '');
             } catch (error) {
                 showLoginMessage(error.message === 'Failed to fetch'

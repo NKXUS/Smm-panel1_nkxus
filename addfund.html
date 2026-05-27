@@ -539,6 +539,11 @@
             color: #ef6c00;
         }
 
+        .status-partial {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
         .payment-history-card {
             margin-top: 32px;
             background: var(--white);
@@ -1046,7 +1051,7 @@
                                 </div>
                                 <div class="summary-row">
                                     <span class="summary-label">Status</span>
-                                    <span class="summary-value"><span class="status-badge">Pending</span></span>
+                                    <span class="summary-value"><span class="status-badge status-pending">Pending</span></span>
                                 </div>
                                 <div class="summary-row"
                                     style="margin-top: 12px; border-top: 1px solid var(--border); padding-top: 16px;">
@@ -1067,6 +1072,7 @@
                             <thead>
                                 <tr>
                                     <th>ID</th>
+                                    <th>Name</th>
                                     <th>Date</th>
                                     <th>Amount</th>
                                     <th>Method</th>
@@ -1076,7 +1082,7 @@
                             </thead>
                             <tbody id="payment-history-body">
                                 <tr>
-                                    <td colspan="6" style="text-align:center;">Loading payments...</td>
+                                    <td colspan="7" style="text-align:center;">Loading payments...</td>
                                 </tr>
                             </tbody>
                         </table>

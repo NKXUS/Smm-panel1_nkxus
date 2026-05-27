@@ -1630,6 +1630,19 @@
                 }
             }
 
+            function getCurrentUser() {
+                const rawUser = localStorage.getItem('smm_user') || sessionStorage.getItem('smm_user');
+                try {
+                    return JSON.parse(rawUser || '{}') || {};
+                } catch (_error) {
+                    return {};
+                }
+            }
+
+            function isAdminUser() {
+                return String(getCurrentUser().role || 'client').toLowerCase() === 'admin';
+            }
+
             async function apiRequest(path, options = {}) {
                 const token = getToken();
                 const headers = {
@@ -1662,13 +1675,18 @@
             }
 
             async function getAllPreferenceRows() {
-                const firstPayload = await apiRequest(ENDPOINTS.getPreferences);
+                const userId = getCurrentUserId();
+                const query = !isAdminUser() && userId
+                    ? `?user_id=${encodeURIComponent(userId)}`
+                    : '';
+                const pagePrefix = query ? `${query}&` : '?';
+                const firstPayload = await apiRequest(`${ENDPOINTS.getPreferences}${query}`);
                 const firstItems = itemsFromPayload(firstPayload);
                 const lastPage = Number(firstPayload.data?.last_page || 1);
                 const pageRequests = [];
 
                 for (let page = 2; page <= lastPage; page += 1) {
-                    pageRequests.push(apiRequest(`${ENDPOINTS.getPreferences}?page=${page}`));
+                    pageRequests.push(apiRequest(`${ENDPOINTS.getPreferences}${pagePrefix}page=${page}`));
                 }
 
                 const results = await Promise.allSettled(pageRequests);
@@ -1844,7 +1862,7 @@
                         ? items.filter((item) => String(item.user_id) === String(userId))
                         : items;
 
-                    preferenceRows = items;
+                    preferenceRows = isAdminUser() ? items : userItems;
                     renderPreferenceRows(preferenceRows, currentPreferencePage);
 
                     const settings = normalizePreferences(userItems);

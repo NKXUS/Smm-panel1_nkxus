@@ -1069,6 +1069,20 @@
     </script>
     <script>
         (() => {
+            function getCurrentUser() {
+                const rawUser = localStorage.getItem('smm_user') || sessionStorage.getItem('smm_user');
+                try {
+                    return JSON.parse(rawUser || '{}') || {};
+                } catch (_error) {
+                    return {};
+                }
+            }
+
+            if (String(getCurrentUser().role || 'client').toLowerCase() !== 'admin') {
+                window.location.replace('dashboard.html');
+                return;
+            }
+
             const API_BASE_URL = window.SMM_API_BASE_URL || 'http://127.0.0.1:8000';
             const rowsPerPage = 10;
             const tableBody = document.getElementById('updates-table-body');

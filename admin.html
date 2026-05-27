@@ -55,7 +55,7 @@
             min-height: 100vh;
         }
 
-        /* ── SIDEBAR ── */
+        /* -- SIDEBAR -- */
         .sidebar {
             width: var(--sidebar-width);
             background: rgba(255, 255, 255, 0.8);
@@ -147,7 +147,7 @@
             border-top: 1px solid var(--border);
         }
 
-        /* ── MAIN ── */
+        /* -- MAIN -- */
         .main {
             flex: 1;
             margin-left: var(--sidebar-width);
@@ -157,7 +157,7 @@
             width: 100%;
         }
 
-        /* ── TOP BAR ── */
+        /* -- TOP BAR -- */
         .top-bar {
             height: var(--header-height);
             padding: 0 40px;
@@ -183,6 +183,32 @@
             display: flex;
             align-items: center;
             gap: 20px;
+        }
+
+        .balance-card {
+            background: var(--white);
+            padding: 10px 24px;
+            border-radius: 100px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .balance-card:hover {
+            border-color: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .balance-card span {
+            color: var(--primary);
+            font-weight: 700;
         }
 
         .search-box {
@@ -232,6 +258,51 @@
             box-shadow: var(--shadow-sm);
         }
 
+        .notification {
+            width: 44px;
+            height: 44px;
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            display: grid;
+            place-items: center;
+            color: var(--secondary-light);
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .notification:hover {
+            color: var(--primary);
+            border-color: var(--primary-light);
+            transform: translateY(-2px);
+        }
+
+        .notification-dot {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 8px;
+            height: 8px;
+            background: #ff5e5e;
+            border-radius: 50%;
+            border: 2px solid var(--white);
+        }
+
+        .avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 18px;
+            background: var(--primary);
+            display: grid;
+            place-items: center;
+            box-shadow: 0 8px 16px var(--primary-glow);
+            transition: var(--transition);
+        }
+
+        .avatar:hover {
+            transform: translateY(-2px) rotate(5deg);
+        }
+
         .badge-dot {
             position: absolute;
             top: 12px;
@@ -243,7 +314,7 @@
             border: 2px solid var(--white);
         }
 
-        /* ── CONTENT ── */
+        /* -- CONTENT -- */
         .content {
             padding: 40px;
             max-width: 1400px;
@@ -251,7 +322,21 @@
             width: 100%;
         }
 
-        /* ── STATS ── */
+        .admin-welcome-content {
+            min-height: calc(100vh - var(--header-height) - 80px);
+            display: grid;
+            place-items: center;
+        }
+
+        .admin-welcome-message {
+            color: var(--primary);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(30px, 5vw, 52px);
+            font-weight: 600;
+            text-align: center;
+        }
+
+        /* -- STATS -- */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -326,7 +411,7 @@
             font-weight: 500;
         }
 
-        /* ── MAIN GRID ── */
+        /* -- MAIN GRID -- */
         .main-grid {
             display: grid;
             grid-template-columns: 2fr 1fr;
@@ -354,7 +439,7 @@
             color: var(--secondary);
         }
 
-        /* ── TABLE ── */
+        /* -- TABLE -- */
         .table-wrap {
             overflow-x: auto;
         }
@@ -408,7 +493,7 @@
 
         .status-success { background: #e3f9eb; color: #27ae60; }
         .status-warning { background: #fff4e5; color: #ff9f43; }
-/* ── ACTIVITY ── */
+/* -- ACTIVITY -- */
         .activity-item {
             display: flex;
             gap: 16px;
@@ -449,7 +534,7 @@
             color: var(--secondary-light);
         }
 
-        /* ── MOBILE ── */
+        /* -- MOBILE -- */
         .mobile-toggle {
             display: none;
             width: 44px;
@@ -478,7 +563,13 @@
             .content { padding: 24px 16px; }
             .top-bar { padding: 0 16px; }
             .search-box { display: none; }
-            .page-title { font-size: 20px; }
+            .page-title { display: none; }
+            .top-actions { gap: 10px; }
+            .balance-card {
+                padding: 8px 12px;
+                font-size: 12px;
+                gap: 6px;
+            }
         }
     </style>
 </head>
@@ -580,13 +671,14 @@
                 </a>
             </nav>
             <div class="sidebar-footer">
-                <a href="support.html" class="nav-item">
+                <a href="support.html" class="nav-item" data-admin-support="true">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
                     Quick Support
                 </a>
-                <a href="https://wa.me/8688383973" class="nav-item" target="_blank">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" /></svg>
-                    WhatsApp Support
+                <a href="support.html" class="nav-item" hidden style="display: none;">
+                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347" />
+                    </svg>
                 </a>
                 <a href="index.html" class="nav-item">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"></path></svg>
@@ -602,156 +694,37 @@
                     <div class="mobile-toggle" id="mobile-toggle">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
                     </div>
-                    <h1 class="page-title">Admin Overview</h1>
+                    <h1 class="page-title">Admin Dashboard</h1>
                 </div>
 
                 <div class="top-actions">
-                    <div class="search-box">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--secondary-light)" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                        <input type="text" placeholder="Search accounts, orders..." />
+                    <div class="balance-card">
+                        Balance: <span>&#8377;0.00</span>
                     </div>
-                    <div class="icon-btn">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                        <div class="badge-dot"></div>
-                    </div>
-                    <div class="icon-btn" style="border: none; background: var(--primary-glow); color: var(--primary);">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+
+                    <a href="notifications.html" class="notification">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                        </svg>
+                        <div class="notification-dot"></div>
+                    </a>
+
+                    <div class="user-profile">
+                        <div class="avatar">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                        </div>
                     </div>
                 </div>
             </header>
 
-            <div class="content">
-                <!-- STATS -->
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-head">
-                            <div class="stat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg></div>
-                            <span class="stat-trend">+14%</span>
-                        </div>
-                        <div class="stat-value">1,284</div>
-                        <div class="stat-label">Total Users</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-head">
-                            <div class="stat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path></svg></div>
-                            <span class="stat-trend">+8%</span>
-                        </div>
-                        <div class="stat-value">45,902</div>
-                        <div class="stat-label">Completed Orders</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-head">
-                            <div class="stat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></div>
-                            <span class="stat-trend" style="color: var(--accent); background: rgba(212, 163, 115, 0.1);">Growth</span>
-                        </div>
-                        <div class="stat-value">₹12.4L</div>
-                        <div class="stat-label">Platform Revenue</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-head">
-                            <div class="stat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></div>
-                            <span class="stat-trend" style="color: #ff4757; background: rgba(255,71,87,0.1);">Critical</span>
-                        </div>
-                        <div class="stat-value">12</div>
-                        <div class="stat-label">Open Tickets</div>
-                    </div>
-                </div>
-
-                <div class="main-grid">
-                    <!-- TABLE -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h2 class="card-title">Recent User Activity</h2>
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--secondary-light)" stroke-width="2"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
-                        </div>
-                        <div class="table-wrap">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>User</th>
-                                        <th>Balance</th>
-                                        <th>Status</th>
-                                        <th>Activity</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            <div class="user-info">
-                                                <div class="user-pic">JD</div>
-                                                <div style="display: flex; flex-direction: column;">
-                                                    <span style="font-weight: 600;">John Doe</span>
-                                                    <span style="font-size: 11px; color: var(--secondary-light);">john@example.com</span>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td style="font-weight: 700; color: var(--primary);">₹5,400.00</td>
-                                        <td><span class="status-badge status-success">Active</span></td>
-                                        <td style="color: var(--secondary-light);">Added Funds</td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="user-info">
-                                                <div class="user-pic">SM</div>
-                                                <div style="display: flex; flex-direction: column;">
-                                                    <span style="font-weight: 600;">Sarah Miller</span>
-                                                    <span style="font-size: 11px; color: var(--secondary-light);">sarah.m@gmail.com</span>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td style="font-weight: 700; color: var(--primary);">₹1,250.50</td>
-                                        <td><span class="status-badge status-success">Active</span></td>
-                                        <td style="color: var(--secondary-light);">Placed Order</td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="user-info">
-                                                <div class="user-pic" style="color: #ff4757;">BK</div>
-                                                <div style="display: flex; flex-direction: column;">
-                                                    <span style="font-weight: 600;">Brian King</span>
-                                                    <span style="font-size: 11px; color: var(--secondary-light);">brian.k@outlook.com</span>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td style="font-weight: 700; color: var(--primary);">₹0.00</td>
-                                        <td><span class="status-badge status-warning">Flagged</span></td>
-                                        <td style="color: var(--secondary-light);">Multiple Logins</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- ACTIVITY FEED -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h2 class="card-title">Live Updates</h2>
-                        </div>
-                        <div class="activity-feed">
-                            <div class="activity-item">
-                                <div class="activity-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
-                                <div class="activity-content">
-                                    <p class="activity-text"><strong>@mike_ross</strong> just registered.</p>
-                                    <span class="activity-time">2 mins ago</span>
-                                </div>
-                            </div>
-                            <div class="activity-item">
-                                <div class="activity-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div>
-                                <div class="activity-content">
-                                    <p class="activity-text">Service <strong>#104</strong> price reduced by 5%.</p>
-                                    <span class="activity-time">15 mins ago</span>
-                                </div>
-                            </div>
-                            <div class="activity-item">
-                                <div class="activity-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></div>
-                                <div class="activity-content">
-                                    <p class="activity-text">New Support Ticket <strong>#942</strong> received.</p>
-                                    <span class="activity-time">1 hour ago</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="content admin-welcome-content">
+                <h2 class="admin-welcome-message">Welcome Admin !</h2>
             </div>
         </main>
     </div>
@@ -772,8 +745,10 @@
             }
         });
     </script>
+    <script src="static/js/smm-api.js"></script>
     <script src="static/js/logout.js"></script>
     <script src="static/js/whatsapp-widget.js"></script>
 </body>
 
 </html>
+

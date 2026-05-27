@@ -523,7 +523,136 @@
             font-size: 13px;
         }
 
+        .api-keys-card {
+            display: block;
+            margin-top: 28px;
+        }
+
+        .api-keys-card .doc-content {
+            border-right: 0;
+            padding: 36px;
+        }
+
+        .api-keys-table-wrap {
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            background: var(--white);
+        }
+
+        .api-keys-table {
+            min-width: 820px;
+        }
+
+        .api-keys-table th {
+            background: #f8f9fa;
+            padding: 14px 16px;
+            letter-spacing: 0.08em;
+            white-space: nowrap;
+        }
+
+        .api-keys-table td {
+            padding: 18px 16px;
+            vertical-align: middle;
+        }
+
+        .api-keys-table tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .api-key-chip {
+            display: inline-flex;
+            align-items: center;
+            max-width: 260px;
+            padding: 7px 10px;
+            border-radius: 8px;
+            background: #f1f3f5;
+            color: var(--secondary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .api-user-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .api-user-cell strong {
+            color: var(--secondary);
+            font-size: 14px;
+        }
+
+        .api-user-cell span {
+            color: var(--secondary-light);
+            font-size: 12px;
+        }
+
+        .api-status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 10px;
+            border-radius: 999px;
+            background: #e8f5e9;
+            color: #2e7d32;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .api-status-badge.revoked,
+        .api-status-badge.inactive {
+            background: #ffebee;
+            color: #c62828;
+        }
+
         /* ── CODE BLOCKS ── */
+        .api-keys-pagination {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 22px 8px 0;
+            flex-wrap: wrap;
+        }
+
+        .api-keys-pagination .pagination-btn {
+            min-width: 42px;
+            height: 42px;
+            padding: 0 14px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--white);
+            color: var(--secondary);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .api-keys-pagination .pagination-btn:hover:not(:disabled),
+        .api-keys-pagination .pagination-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: var(--white);
+            box-shadow: 0 10px 22px var(--primary-glow);
+        }
+
+        .api-keys-pagination .pagination-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.45;
+        }
+
+        .api-keys-pagination .pagination-summary {
+            width: 100%;
+            text-align: center;
+            color: var(--secondary-light);
+            font-size: 13px;
+            font-weight: 500;
+        }
+
         .code-tabs {
             display: flex;
             gap: 4px;
@@ -1245,6 +1374,35 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="doc-card api-keys-card">
+                    <div class="doc-content">
+                        <div class="doc-header">
+                            <h3>API Keys</h3>
+                            <p>Live records from your api_keys table.</p>
+                        </div>
+                        <div class="params-section api-keys-table-wrap">
+                            <table class="params-table api-keys-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>User</th>
+                                        <th>API Key</th>
+                                        <th>Status</th>
+                                        <th>Created Date</th>
+                                        <th>Updated Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="api-keys-table-body">
+                                    <tr>
+                                        <td colspan="6" style="text-align:center;">Loading API keys...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="api-keys-pagination" id="api-keys-pagination"></div>
+                    </div>
+                </div>
             </div>
         </main>
     </div>
@@ -1319,6 +1477,9 @@
                 services: 'php',
                 add: 'php'
             };
+            const apiKeysPerPage = 10;
+            let apiKeysCurrentPage = 1;
+            let apiKeysCache = [];
 
             function buildLiveSnippets() {
                 const key = liveApiKey || 'YOUR_API_KEY';
@@ -1345,6 +1506,237 @@
                     || payload?.user?.api_key
                     || payload?.data?.user?.api_key
                     || '';
+            }
+
+            function escapeHtml(value) {
+                return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                }[char]));
+            }
+
+            function apiKeysFromPayload(payload) {
+                if (Array.isArray(payload)) return payload;
+                if (Array.isArray(payload?.data?.data)) return payload.data.data;
+                if (Array.isArray(payload?.data)) return payload.data;
+                if (Array.isArray(payload?.api_keys)) return payload.api_keys;
+                if (Array.isArray(payload?.data?.api_keys)) return payload.data.api_keys;
+                if (Array.isArray(payload?.items)) return payload.items;
+
+                const key = apiKeyFromPayload(payload);
+                if (key) {
+                    const user = window.SmmApi?.getCurrentUser?.() || {};
+                    return [{
+                        id: user.id || '-',
+                        user,
+                        user_id: user.id,
+                        username: user.username,
+                        email: user.email,
+                        api_key: key,
+                        status: 'active',
+                        created_at: user.created_at,
+                        updated_at: user.updated_at
+                    }];
+                }
+
+                return [];
+            }
+
+            function apiKeysFromUsers(users) {
+                return users
+                    .map((user) => ({
+                        id: user.id,
+                        user_id: user.id,
+                        user,
+                        username: user.username,
+                        name: user.name,
+                        api_key: user.api_key,
+                        status: 'active',
+                        created_at: user.created_at,
+                        updated_at: user.updated_at
+                    }));
+            }
+
+            function currentUser() {
+                return window.SmmApi?.getCurrentUser?.() || {};
+            }
+
+            function isAdminUser() {
+                return String(currentUser().role || 'client').toLowerCase() === 'admin';
+            }
+
+            function filterApiKeysForRole(apiKeys) {
+                if (isAdminUser()) return apiKeys;
+
+                const userId = currentUser().id;
+                return apiKeys.filter((item) => String(item.user_id || item.user?.id || item.id) === String(userId));
+            }
+
+            function sortApiKeysAscending(apiKeys) {
+                return [...apiKeys].sort((a, b) => {
+                    const aId = Number(a.id || a.user_id || a.user?.id || 0);
+                    const bId = Number(b.id || b.user_id || b.user?.id || 0);
+                    if (aId !== bId) return aId - bId;
+
+                    return new Date(a.created_at || 0) - new Date(b.created_at || 0);
+                });
+            }
+
+            function buildApiKeysPaginationMeta(total, page) {
+                const lastPage = Math.max(1, Math.ceil(total / apiKeysPerPage));
+                const currentPage = Math.min(Math.max(1, page), lastPage);
+                const from = total ? ((currentPage - 1) * apiKeysPerPage) + 1 : 0;
+                const to = Math.min(currentPage * apiKeysPerPage, total);
+
+                return {
+                    current_page: currentPage,
+                    last_page: lastPage,
+                    from,
+                    to,
+                    total,
+                    prev_page_url: currentPage > 1 ? '#' : null,
+                    next_page_url: currentPage < lastPage ? '#' : null
+                };
+            }
+
+            function renderApiKeysPagination(meta) {
+                const pagination = document.getElementById('api-keys-pagination');
+                if (!pagination) return;
+
+                if (!meta || meta.total <= apiKeysPerPage) {
+                    pagination.innerHTML = meta?.total
+                        ? `<div class="pagination-summary">Showing ${meta.from}-${meta.to} of ${meta.total} API keys</div>`
+                        : '';
+                    return;
+                }
+
+                const pages = Array.from({ length: Number(meta.last_page || 1) }, (_item, index) => index + 1);
+                const buttons = pages.map((page) => `
+                    <button class="pagination-btn ${page === Number(meta.current_page) ? 'active' : ''}" data-page="${page}" type="button">${page}</button>
+                `).join('');
+
+                pagination.innerHTML = `
+                    <button class="pagination-btn" data-page="${Number(meta.current_page) - 1}" type="button" ${meta.prev_page_url ? '' : 'disabled'}>Previous</button>
+                    ${buttons}
+                    <button class="pagination-btn" data-page="${Number(meta.current_page) + 1}" type="button" ${meta.next_page_url ? '' : 'disabled'}>Next</button>
+                    <div class="pagination-summary">Showing ${meta.from || 0}-${meta.to || 0} of ${meta.total || 0} API keys</div>
+                `;
+
+                pagination.querySelectorAll('.pagination-btn').forEach((button) => {
+                    button.addEventListener('click', () => {
+                        const page = Number(button.dataset.page);
+                        if (page && page !== apiKeysCurrentPage) renderApiKeysPage(page);
+                    });
+                });
+            }
+
+            function formatDate(value) {
+                if (!value) return '-';
+                const text = String(value);
+                const dateOnly = text.match(/^\d{4}-\d{2}-\d{2}/)?.[0];
+                if (dateOnly) return dateOnly;
+
+                const date = new Date(text);
+                if (Number.isNaN(date.getTime())) return text;
+
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+
+            function maskApiKey(key) {
+                const text = String(key || '');
+                if (!text) return '-';
+                if (text.length <= 8) return text;
+                return `${text.slice(0, 4)}${'•'.repeat(12)}${text.slice(-4)}`;
+            }
+
+            function renderApiKeysRows(apiKeys) {
+                const tableBody = document.getElementById('api-keys-table-body');
+                if (!tableBody) return;
+
+                if (!apiKeys.length) {
+                    tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No API keys found.</td></tr>';
+                    return;
+                }
+
+                tableBody.innerHTML = apiKeys
+                    .map((item) => {
+                        const key = item.api_key || item.key || item.token || '';
+                        const userName = item.user?.name || item.name || item.user?.username || item.username || `User ${item.user_id || '-'}`;
+                        const userMeta = item.user?.username || item.username || (item.user_id ? `ID ${item.user_id}` : '');
+                        const status = item.status || (item.revoked_at ? 'revoked' : 'active');
+
+                        return `
+                        <tr>
+                            <td><span class="p-name">${escapeHtml(item.id || '-')}</span></td>
+                            <td>
+                                <span class="api-user-cell">
+                                    <strong>${escapeHtml(userName)}</strong>
+                                    <span>${escapeHtml(userMeta)}</span>
+                                </span>
+                            </td>
+                            <td><span class="api-key-chip">${escapeHtml(maskApiKey(key))}</span></td>
+                            <td><span class="api-status-badge ${escapeHtml(String(status).toLowerCase())}">${escapeHtml(status)}</span></td>
+                            <td>${escapeHtml(formatDate(item.created_at))}</td>
+                            <td>${escapeHtml(formatDate(item.updated_at))}</td>
+                        </tr>
+                    `;
+                    }).join('');
+            }
+
+            function renderApiKeysPage(page = 1) {
+                apiKeysCurrentPage = page;
+                const meta = buildApiKeysPaginationMeta(apiKeysCache.length, page);
+                apiKeysCurrentPage = meta.current_page;
+                const start = (meta.current_page - 1) * apiKeysPerPage;
+                const pageRows = apiKeysCache.slice(start, start + apiKeysPerPage);
+
+                renderApiKeysRows(pageRows);
+                renderApiKeysPagination(meta);
+            }
+
+            function renderApiKeysTable(apiKeys, page = 1) {
+                apiKeysCache = sortApiKeysAscending(apiKeys);
+                renderApiKeysPage(page);
+            }
+
+            async function loadApiKeysTable() {
+                const tableBody = document.getElementById('api-keys-table-body');
+                if (!tableBody) return;
+
+                try {
+                    document.getElementById('api-keys-pagination')?.replaceChildren();
+                    if (isAdminUser()) {
+                        const users = await window.SmmApi.getAllPaginatedItems('/api/get_users');
+                        renderApiKeysTable(apiKeysFromUsers(users));
+                        return;
+                    }
+
+                    const user = currentUser();
+                    let apiKeys = [];
+
+                    if (user.api_key) {
+                        apiKeys = apiKeysFromUsers([user]);
+                    } else {
+                        try {
+                            const payload = await window.SmmApi.apiRequest('/api/api-key');
+                            apiKeys = apiKeysFromPayload(payload);
+                        } catch (_error) {
+                            const users = await window.SmmApi.getAllPaginatedItems('/api/get_users');
+                            apiKeys = apiKeysFromUsers(users);
+                        }
+                    }
+
+                    renderApiKeysTable(filterApiKeysForRole(apiKeys));
+                } catch (error) {
+                    document.getElementById('api-keys-pagination')?.replaceChildren();
+                    tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">${escapeHtml(error.message)}</td></tr>`;
+                }
             }
 
             function renderLiveKey() {
@@ -1426,6 +1818,7 @@
                     liveKeyVisible = true;
                     renderLiveKey();
                     renderLiveSnippets();
+                    loadApiKeysTable();
                     alert('API Key regenerated.');
                 } catch (error) {
                     alert(error.message);
@@ -1440,6 +1833,7 @@
             if (endpointUrl) endpointUrl.textContent = liveEndpoint;
             renderLiveKey();
             renderLiveSnippets();
+            loadApiKeysTable();
             loadLiveApiKey().catch((error) => {
                 const keyValue = document.getElementById('apiKeyVal');
                 if (keyValue) keyValue.textContent = 'Unable to load API key';
