@@ -32,9 +32,14 @@ Route::post('/sign_in', [SmmUserController::class, 'signIn']);
 
 Route::post('/logout', [SmmUserController::class, 'logout']);
 
+Route::post('/update_profile', [SmmUserController::class, 'updateProfile']);
+
 Route::post('/forgot_password', [SmmUserController::class, 'forgotPassword']);
 
 Route::post('/reset_password', [SmmUserController::class, 'resetPassword']);
+Route::get('/auth/google/redirect', [SmmUserController::class, 'redirectToGoogle']);
+
+Route::get('/auth/google/callback', [SmmUserController::class, 'handleGoogleCallback']);
 
 Route::get('/api-key', [ApiKeyController::class, 'show']);
 

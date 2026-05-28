@@ -26,6 +26,8 @@ class SmmUser extends Model
         'currency',
         'two_fa_enabled',
         'telegram_id',
+        'google_id',
+        'google_avatar',
     ];
 
     protected $hidden = [

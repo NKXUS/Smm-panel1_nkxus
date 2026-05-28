@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use Laravel\Socialite\Facades\Socialite;
 
 class SmmUserController extends Controller
 {
@@ -146,6 +147,86 @@ public function signUp(Request $request)
     ], 201);
 }
 
+public function updateProfile(Request $request)
+{
+    try {
+        $token = $request->bearerToken() ?? $request->api_token;
+
+        if (!$token) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Token is required'
+            ], 401);
+        }
+
+        $user = SmmUser::where('api_token', $token)->first();
+
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Invalid token'
+            ], 401);
+        }
+
+        $request->validate([
+            'username' => 'required|string|max:255|unique:smmusers,username,' . $user->id,
+            'email' => 'required|email|max:255|unique:smmusers,email,' . $user->id,
+            'phone_number' => 'nullable|string|max:20',
+            'language' => 'nullable|string|max:50',
+            'timezone' => 'nullable|string|max:80',
+            'currency' => 'nullable|string|max:10',
+            'telegram_id' => 'nullable|string|max:100',
+            'password' => 'nullable|string|min:6',
+        ]);
+
+        $updates = [
+            'username' => $request->username,
+            'email' => $request->email,
+            'phone_number' => $request->phone_number,
+            'language' => $request->language ?? $user->language,
+            'timezone' => $request->timezone ?? $user->timezone,
+            'currency' => $request->currency ?? $user->currency,
+            'telegram_id' => $request->telegram_id ?? $user->telegram_id,
+        ];
+
+        if ($request->filled('password')) {
+            $updates['password'] = Hash::make($request->password);
+        }
+
+        $user->update($updates);
+        $user->refresh();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Profile updated successfully',
+            'user' => [
+                'id' => $user->id,
+                'username' => $user->username,
+                'email' => $user->email,
+                'phone_number' => $user->phone_number,
+                'balance' => $user->balance,
+                'role' => $user->role,
+                'language' => $user->language,
+                'timezone' => $user->timezone,
+                'currency' => $user->currency,
+                'telegram_id' => $user->telegram_id,
+            ],
+        ], 200);
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return response()->json([
+            'status' => false,
+            'message' => collect($e->errors())->flatten()->first() ?? 'Invalid profile details',
+            'errors' => $e->errors(),
+        ], 422);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Failed to update profile',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
+}
+
 private function getReferrerFromRequest(Request $request): ?SmmUser
 {
     if ($request->referrer_id) {
@@ -211,7 +292,7 @@ public function signIn(Request $request)
             'balance' => $user->balance,
             'role' => $user->role,
         ],
-        'redirect' => '/dashboard.html'
+        'redirect' => $this->loginRedirectUrl($user),
     ]);
 }
 
@@ -399,4 +480,134 @@ public function resetPassword(Request $request)
     }
 }
 
+public function redirectToGoogle(Request $request)
+{
+    $returnTo = $this->googleAuthReturnPage($request->query('return_to', 'index.html'));
+
+    return Socialite::driver('google')
+        ->stateless()
+        ->with(['state' => rtrim(strtr(base64_encode($returnTo), '+/', '-_'), '=')])
+        ->redirect();
+}
+
+public function handleGoogleCallback(Request $request)
+{
+    $returnTo = $this->googleAuthReturnPageFromState($request);
+
+    try {
+        $googleUser = Socialite::driver('google')->stateless()->user();
+        $email = $googleUser->getEmail();
+
+        if (!$email) {
+            return $this->redirectGoogleLoginError('Google account email is required.', $returnTo);
+        }
+
+        $user = SmmUser::where('google_id', $googleUser->getId())
+            ->orWhere('email', $email)
+            ->first();
+
+        $token = Str::random(80);
+        $name = trim((string) $googleUser->getName()) ?: Str::before($email, '@');
+
+        if ($user) {
+            $user->update([
+                'google_id' => $googleUser->getId(),
+                'google_avatar' => $googleUser->getAvatar(),
+                'api_token' => $token,
+            ]);
+        } else {
+            $user = SmmUser::create([
+                'username' => $this->uniqueGoogleUsername($name, $email),
+                'email' => $email,
+                'phone_number' => null,
+                'password' => Hash::make(Str::random(32)),
+                'balance' => 0,
+                'api_key' => Str::random(80),
+                'api_token' => $token,
+                'role' => 'client',
+                'language' => 'english',
+                'timezone' => 'Asia/Kolkata',
+                'currency' => 'INR',
+                'two_fa_enabled' => false,
+                'telegram_id' => '',
+                'google_id' => $googleUser->getId(),
+                'google_avatar' => $googleUser->getAvatar(),
+            ]);
+        }
+
+        return redirect()->away($this->googleLoginRedirectUrl($user, $token, $returnTo));
+    } catch (\Throwable $e) {
+        return $this->redirectGoogleLoginError('Google login failed. Please try again.', $returnTo);
+    }
+}
+
+private function googleLoginRedirectUrl(SmmUser $user, string $token, string $returnTo = 'index.html'): string
+{
+    $frontendUrl = rtrim(env('FRONTEND_URL', config('app.url')), '/');
+    $redirectUrl = $this->loginRedirectUrl($user);
+    $payload = rtrim(strtr(base64_encode(json_encode([
+        'id' => $user->id,
+        'username' => $user->username,
+        'email' => $user->email,
+        'balance' => $user->balance,
+        'role' => $user->role,
+    ])), '+/', '-_'), '=');
+
+    return $frontendUrl . '/' . $returnTo . '#google_auth=success'
+        . '&token=' . urlencode($token)
+        . '&token_type=Bearer'
+        . '&user=' . urlencode($payload)
+        . '&redirect=' . urlencode($redirectUrl);
+}
+
+private function loginRedirectUrl(SmmUser $user): string
+{
+    $frontendUrl = rtrim(env('FRONTEND_URL', 'http://127.0.0.1:5500/Smm-panel1_nkxus'), '/');
+    $role = strtolower((string) $user->role);
+    $page = $role === 'admin' ? 'admin.html' : 'dashboard.html';
+
+    return $frontendUrl . '/' . $page;
+}
+
+private function redirectGoogleLoginError(string $message, string $returnTo = 'index.html')
+{
+    $frontendUrl = rtrim(env('FRONTEND_URL', config('app.url')), '/');
+
+    return redirect()->away($frontendUrl . '/' . $returnTo . '#google_auth=error&message=' . urlencode($message));
+}
+
+private function googleAuthReturnPageFromState(Request $request): string
+{
+    $state = (string) $request->query('state', '');
+
+    if (!$state) {
+        return 'index.html';
+    }
+
+    $decoded = base64_decode(strtr($state, '-_', '+/'), true);
+
+    return $this->googleAuthReturnPage($decoded ?: 'index.html');
+}
+
+private function googleAuthReturnPage(?string $returnTo): string
+{
+    $page = basename((string) $returnTo);
+
+    return in_array($page, ['index.html', 'signup.html'], true) ? $page : 'index.html';
+}
+
+private function uniqueGoogleUsername(string $name, string $email): string
+{
+    $base = Str::slug($name, '_') ?: Str::before($email, '@');
+    $base = Str::limit($base, 40, '');
+    $username = $base;
+    $suffix = 1;
+
+    while (SmmUser::where('username', $username)->exists()) {
+        $username = Str::limit($base, 35, '') . '_' . $suffix;
+        $suffix++;
+    }
+
+    return $username;
+}
 }
