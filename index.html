@@ -805,7 +805,7 @@
                 </div>
 
                 <div class="socials">
-                    <button class="btn-social">
+                    <button class="btn-social" id="google-sign-in-button" type="button">
                         <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -942,14 +942,64 @@
 
         const signInForm = document.getElementById('sign-in-form');
         const signInButton = document.getElementById('sign-in-button');
+        const googleSignInButton = document.getElementById('google-sign-in-button');
         const loginMessage = document.getElementById('login-message');
         const API_BASE_URL = window.SMM_API_BASE_URL || 'http://127.0.0.1:8000';
         const signInEndpoint = `${API_BASE_URL}/api/sign_in`;
+        const googleSignInEndpoint = `${API_BASE_URL}/api/auth/google/redirect`;
+
+        function decodeBase64Url(value) {
+            const padded = value.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((value.length + 3) % 4);
+            return JSON.parse(atob(padded));
+        }
         
         function showLoginMessage(message, type) {
             loginMessage.textContent = message;
             loginMessage.className = `form-message ${type}`;
         }
+
+        function handleGoogleAuthCallback() {
+            if (!window.location.hash.includes('google_auth=')) return;
+
+            const params = new URLSearchParams(window.location.hash.slice(1));
+            const status = params.get('google_auth');
+
+            window.history.replaceState(null, '', window.location.pathname + window.location.search);
+
+            if (status !== 'success') {
+                showLoginMessage(params.get('message') || 'Google login failed. Please try again.', 'error');
+                return;
+            }
+
+            const token = params.get('token');
+            const tokenType = params.get('token_type') || 'Bearer';
+            const userPayload = params.get('user');
+            const redirectPath = params.get('redirect') || 'dashboard.html';
+
+            if (!token || !userPayload) {
+                showLoginMessage('Google login response was incomplete. Please try again.', 'error');
+                return;
+            }
+
+            try {
+                const user = decodeBase64Url(userPayload);
+                sessionStorage.setItem('api_token', token);
+                sessionStorage.setItem('token_type', tokenType);
+                sessionStorage.setItem('smm_user', JSON.stringify(user));
+                if (user.id) sessionStorage.setItem('user_id', user.id);
+                window.location.href = redirectPath.replace(/^\/+/, '');
+            } catch (_error) {
+                showLoginMessage('Could not finish Google login. Please try again.', 'error');
+            }
+        }
+
+        handleGoogleAuthCallback();
+
+        googleSignInButton.addEventListener('click', () => {
+            googleSignInButton.disabled = true;
+            googleSignInButton.textContent = 'Opening Google...';
+            window.location.href = googleSignInEndpoint;
+        });
 
         signInForm.addEventListener('submit', async (event) => {
             event.preventDefault();

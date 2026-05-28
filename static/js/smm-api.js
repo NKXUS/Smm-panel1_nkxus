@@ -104,6 +104,423 @@
         alert(message);
     }
 
+    function ensureProfileEditorStyle() {
+        if (document.getElementById('profile-editor-style')) return;
+
+        const style = document.createElement('style');
+        style.id = 'profile-editor-style';
+        style.textContent = `
+            .user-profile {
+                cursor: pointer;
+                display: inline-flex;
+                align-items: center;
+                gap: 10px;
+                position: relative;
+            }
+            .profile-top-name {
+                max-width: 140px;
+                overflow: hidden;
+                color: var(--secondary, #444);
+                font-size: 13px;
+                font-weight: 700;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            .profile-modal-backdrop {
+                position: fixed;
+                inset: 0;
+                z-index: 3000;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                padding: 24px;
+                background: rgba(17, 24, 39, 0.44);
+            }
+            .profile-modal-backdrop.active {
+                display: flex;
+            }
+            .profile-modal {
+                width: min(560px, 100%);
+                max-height: min(760px, 92vh);
+                overflow: auto;
+                border-radius: 8px;
+                background: #fff;
+                box-shadow: 0 24px 80px rgba(15, 23, 42, 0.28);
+                color: var(--secondary, #444);
+            }
+            .profile-modal-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 16px;
+                padding: 22px 24px;
+                border-bottom: 1px solid var(--border, rgba(68, 68, 68, 0.12));
+            }
+            .profile-modal-title {
+                font-size: 18px;
+                font-weight: 700;
+                margin: 0;
+            }
+            .profile-modal-subtitle {
+                margin: 4px 0 0;
+                color: var(--secondary-light, #666);
+                font-size: 13px;
+            }
+            .profile-close {
+                width: 36px;
+                height: 36px;
+                border: 1px solid var(--border, rgba(68, 68, 68, 0.12));
+                border-radius: 8px;
+                background: #fff;
+                color: var(--secondary, #444);
+                cursor: pointer;
+                font-size: 24px;
+                line-height: 1;
+            }
+            .profile-form {
+                padding: 24px;
+            }
+            .profile-form-grid {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 16px;
+            }
+            .profile-field {
+                display: flex;
+                flex-direction: column;
+                gap: 7px;
+            }
+            .profile-field.full {
+                grid-column: 1 / -1;
+            }
+            .profile-field label {
+                font-size: 12px;
+                font-weight: 700;
+                letter-spacing: 0.04em;
+                text-transform: uppercase;
+                color: var(--secondary, #444);
+            }
+            .profile-field input,
+            .profile-field select {
+                width: 100%;
+                min-height: 42px;
+                border: 1px solid var(--border, rgba(68, 68, 68, 0.12));
+                border-radius: 8px;
+                background: var(--off-white, #f8f8f6);
+                color: var(--secondary, #444);
+                font: inherit;
+                font-size: 14px;
+                padding: 10px 12px;
+                outline: none;
+            }
+            .profile-field input:focus,
+            .profile-field select:focus {
+                border-color: var(--primary, #52906b);
+                box-shadow: 0 0 0 3px rgba(82, 144, 107, 0.14);
+                background: #fff;
+            }
+            .profile-message {
+                display: none;
+                margin: 0 0 16px;
+                padding: 11px 12px;
+                border-radius: 8px;
+                font-size: 13px;
+                line-height: 1.45;
+            }
+            .profile-message.error {
+                display: block;
+                color: #9f2f2f;
+                background: #fff1f1;
+                border: 1px solid rgba(159, 47, 47, 0.18);
+            }
+            .profile-message.success {
+                display: block;
+                color: #2f7148;
+                background: #eefaf2;
+                border: 1px solid rgba(47, 113, 72, 0.18);
+            }
+            .profile-actions {
+                display: flex;
+                justify-content: flex-end;
+                gap: 12px;
+                margin-top: 22px;
+            }
+            .profile-btn {
+                min-height: 42px;
+                border: 1px solid var(--border, rgba(68, 68, 68, 0.12));
+                border-radius: 8px;
+                background: #fff;
+                color: var(--secondary, #444);
+                cursor: pointer;
+                font: inherit;
+                font-size: 14px;
+                font-weight: 700;
+                padding: 10px 16px;
+            }
+            .profile-btn.primary {
+                border-color: var(--primary, #52906b);
+                background: var(--primary, #52906b);
+                color: #fff;
+            }
+            .profile-btn:disabled {
+                cursor: wait;
+                opacity: 0.7;
+            }
+            @media (max-width: 620px) {
+                .profile-modal-backdrop {
+                    align-items: flex-end;
+                    padding: 0;
+                }
+                .profile-modal {
+                    max-height: 92vh;
+                    border-radius: 8px 8px 0 0;
+                }
+                .profile-form-grid {
+                    grid-template-columns: 1fr;
+                }
+                .profile-top-name {
+                    display: none;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    function updateProfileTopName(user = getCurrentUser()) {
+        const displayName = user?.username || user?.email || 'User';
+
+        document.querySelectorAll('.user-profile').forEach((profile) => {
+            let name = profile.querySelector('.profile-top-name');
+
+            if (!name) {
+                name = document.createElement('span');
+                name.className = 'profile-top-name';
+                profile.prepend(name);
+            }
+
+            name.textContent = displayName;
+            name.title = displayName;
+        });
+    }
+
+    function ensureProfileEditorModal() {
+        let backdrop = document.getElementById('profile-modal-backdrop');
+        if (backdrop) return backdrop;
+
+        backdrop = document.createElement('div');
+        backdrop.id = 'profile-modal-backdrop';
+        backdrop.className = 'profile-modal-backdrop';
+        backdrop.innerHTML = `
+            <section class="profile-modal" role="dialog" aria-modal="true" aria-labelledby="profile-modal-title">
+                <div class="profile-modal-header">
+                    <div>
+                        <h2 class="profile-modal-title" id="profile-modal-title">Profile details</h2>
+                        <p class="profile-modal-subtitle" id="profile-modal-subtitle">Manage your account information</p>
+                    </div>
+                    <button type="button" class="profile-close" id="profile-close" aria-label="Close profile">&times;</button>
+                </div>
+                <form class="profile-form" id="profile-form">
+                    <div class="profile-message" id="profile-message" role="alert"></div>
+                    <div class="profile-form-grid">
+                        <div class="profile-field">
+                            <label for="profile-username">Username</label>
+                            <input id="profile-username" name="username" autocomplete="name" required>
+                        </div>
+                        <div class="profile-field">
+                            <label for="profile-email">Email</label>
+                            <input id="profile-email" name="email" type="email" autocomplete="email" required>
+                        </div>
+                        <div class="profile-field">
+                            <label for="profile-phone">Phone number</label>
+                            <input id="profile-phone" name="phone_number" type="tel" autocomplete="tel" placeholder="Enter phone number">
+                        </div>
+                        <div class="profile-field">
+                            <label for="profile-telegram">Telegram ID</label>
+                            <input id="profile-telegram" name="telegram_id" placeholder="Optional">
+                        </div>
+                        <div class="profile-field">
+                            <label for="profile-language">Language</label>
+                            <select id="profile-language" name="language">
+                                <option value="english">English</option>
+                                <option value="hindi">Hindi</option>
+                                <option value="telugu">Telugu</option>
+                            </select>
+                        </div>
+                        <div class="profile-field">
+                            <label for="profile-currency">Currency</label>
+                            <select id="profile-currency" name="currency">
+                                <option value="INR">INR</option>
+                                <option value="USD">USD</option>
+                                <option value="EUR">EUR</option>
+                            </select>
+                        </div>
+                        <div class="profile-field">
+                            <label for="profile-timezone">Timezone</label>
+                            <input id="profile-timezone" name="timezone" placeholder="Asia/Kolkata">
+                        </div>
+                        <div class="profile-field">
+                            <label for="profile-password">New password</label>
+                            <input id="profile-password" name="password" type="password" autocomplete="new-password" placeholder="Enter password">
+                        </div>
+                    </div>
+                    <div class="profile-actions">
+                        <button type="button" class="profile-btn" id="profile-cancel">Cancel</button>
+                        <button type="submit" class="profile-btn primary" id="profile-save">Update</button>
+                    </div>
+                </form>
+            </section>
+        `;
+        document.body.appendChild(backdrop);
+        return backdrop;
+    }
+
+    function setProfileMessage(message, type = 'error') {
+        const node = document.getElementById('profile-message');
+        if (!node) return;
+        node.textContent = message || '';
+        node.className = message ? `profile-message ${type}` : 'profile-message';
+    }
+
+    function fillProfileForm(user = {}) {
+        const setValue = (id, value) => {
+            const input = document.getElementById(id);
+            if (input) input.value = value ?? '';
+        };
+
+        setValue('profile-username', user.username || '');
+        setValue('profile-email', user.email || '');
+        setValue('profile-phone', user.phone_number || user.phone || '');
+        setValue('profile-telegram', user.telegram_id || '');
+        setValue('profile-language', user.language || 'english');
+        setValue('profile-currency', user.currency || 'INR');
+        setValue('profile-timezone', user.timezone || 'Asia/Kolkata');
+        setValue('profile-password', '');
+
+        const subtitle = document.getElementById('profile-modal-subtitle');
+        if (subtitle) {
+            const role = user.role ? ` · ${String(user.role).toUpperCase()}` : '';
+            subtitle.textContent = user.username || user.email || 'User';
+        }
+    }
+
+    async function openProfileEditor() {
+        if (!getToken()) {
+            window.location.href = 'index.html';
+            return;
+        }
+
+        ensureProfileEditorStyle();
+        const backdrop = ensureProfileEditorModal();
+        setProfileMessage('');
+        fillProfileForm(getCurrentUser() || {});
+        backdrop.classList.add('active');
+
+        try {
+            const freshUser = await getFreshCurrentUser();
+            if (freshUser) {
+                fillProfileForm(freshUser);
+                updateProfileTopName(freshUser);
+            }
+        } catch (_error) {
+            // Existing session data is enough to let the user edit profile details.
+        }
+    }
+
+    function closeProfileEditor() {
+        document.getElementById('profile-modal-backdrop')?.classList.remove('active');
+    }
+
+    function initUserProfileEditor() {
+        const profileButtons = document.querySelectorAll('.user-profile');
+        if (!profileButtons.length) return;
+
+        ensureProfileEditorStyle();
+        const backdrop = ensureProfileEditorModal();
+        const form = document.getElementById('profile-form');
+        const closeButton = document.getElementById('profile-close');
+        const cancelButton = document.getElementById('profile-cancel');
+
+        profileButtons.forEach((button) => {
+            button.setAttribute('role', 'button');
+            button.setAttribute('tabindex', '0');
+            button.setAttribute('aria-label', 'Open profile details');
+            button.addEventListener('click', openProfileEditor);
+            button.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    openProfileEditor();
+                }
+            });
+        });
+        updateProfileTopName();
+
+        closeButton?.addEventListener('click', closeProfileEditor);
+        cancelButton?.addEventListener('click', closeProfileEditor);
+        backdrop.addEventListener('click', (event) => {
+            if (event.target === backdrop) closeProfileEditor();
+        });
+
+        form?.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const saveButton = document.getElementById('profile-save');
+            const payload = {
+                username: document.getElementById('profile-username')?.value.trim(),
+                email: document.getElementById('profile-email')?.value.trim(),
+                phone_number: document.getElementById('profile-phone')?.value.trim(),
+                telegram_id: document.getElementById('profile-telegram')?.value.trim(),
+                language: document.getElementById('profile-language')?.value,
+                currency: document.getElementById('profile-currency')?.value,
+                timezone: document.getElementById('profile-timezone')?.value.trim(),
+            };
+            const password = document.getElementById('profile-password')?.value;
+
+            if (password) payload.password = password;
+
+            if (!payload.username || !payload.email) {
+                setProfileMessage('Username and email are required.');
+                return;
+            }
+
+            if (payload.phone_number && payload.phone_number.replace(/\D/g, '').length < 10) {
+                setProfileMessage('Please enter a valid phone number.');
+                return;
+            }
+
+            if (password && password.length < 6) {
+                setProfileMessage('Password must be at least 6 characters.');
+                return;
+            }
+
+            if (saveButton) {
+                saveButton.disabled = true;
+                saveButton.textContent = 'Updating...';
+            }
+            setProfileMessage('');
+
+            try {
+                const data = await apiRequest('/api/update_profile', {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+
+                saveAuth(data);
+                fillProfileForm(data.user || payload);
+                updateProfileTopName(data.user || payload);
+                closeProfileEditor();
+                initDashboardUser();
+                initTotalFundsDisplay();
+            } catch (error) {
+                setProfileMessage(error.message || 'Failed to update profile.');
+            } finally {
+                if (saveButton) {
+                    saveButton.disabled = false;
+                    saveButton.textContent = 'Update';
+                }
+            }
+        });
+    }
+
     function ensureAdminStatusSelectStyle() {
         if (document.getElementById('admin-status-select-style')) return;
 
@@ -2545,5 +2962,6 @@
         initSupportForms();
         initMassOrders();
         initReferral();
+        initUserProfileEditor();
     });
 })();
