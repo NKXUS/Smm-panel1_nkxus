@@ -409,6 +409,62 @@
             box-shadow: 0 12px 24px var(--primary-glow);
         }
 
+        .updates-pagination {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 28px 0 8px;
+            flex-wrap: wrap;
+        }
+
+        .updates-pagination .pagination-btn {
+            min-width: 42px;
+            height: 42px;
+            padding: 0 14px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--white);
+            color: var(--secondary);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .updates-pagination .pagination-btn:hover:not(:disabled),
+        .updates-pagination .pagination-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: var(--white);
+            box-shadow: 0 10px 22px var(--primary-glow);
+        }
+
+        .updates-pagination .pagination-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.45;
+        }
+
+        .updates-pagination .pagination-ellipsis {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 32px;
+            color: var(--secondary-light);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .updates-pagination .pagination-summary {
+            width: 100%;
+            text-align: center;
+            color: var(--secondary-light);
+            font-size: 13px;
+            font-weight: 500;
+            margin-top: 4px;
+        }
+
         @media (max-width: 1100px) {
             .sidebar { transform: translateX(-100%); width: 300px; }
             .sidebar.active { transform: translateX(0); }
@@ -672,8 +728,8 @@
                             <select required>
                                 <option value="">Select order status</option>
                                 <option>Pending</option>
-                                <option>open</option>
-                                <option>closed</option>
+                                <option>Open</option>
+                                <option>Closed</option>
                             </select>
                         </div>
                         <div class="field">

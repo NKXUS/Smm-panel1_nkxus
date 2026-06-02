@@ -2208,6 +2208,9 @@
         const rowsPerPage = 10;
         const currentUser = getCurrentUser() || {};
         const userId = currentUserId();
+        const supportStatuses = ['pending', 'open', 'closed'];
+
+        if (adminView) ensureAdminStatusSelectStyle();
 
         const tableMarkup = `
             <div class="table-container" style="grid-column: 1 / -1; background: var(--white); border: 1px solid var(--border); border-radius: 28px; box-shadow: var(--shadow-lg); overflow: hidden;">
@@ -2269,6 +2272,55 @@
             return '-';
         }
 
+        function normalizeSupportStatus(status) {
+            const normalized = String(status || 'open').trim().toLowerCase().replace(/\s+/g, '_');
+            return supportStatuses.includes(normalized) ? normalized : 'open';
+        }
+
+        function supportStatusLabel(status) {
+            const normalized = normalizeSupportStatus(status);
+            return {
+                pending: 'Pending',
+                open: 'Open',
+                closed: 'Closed'
+            }[normalized];
+        }
+
+        function supportStatusControl(ticket) {
+            if (!adminView) return escapeHtml(ticketValue(ticket, 'status'));
+
+            const normalized = normalizeSupportStatus(ticket.status);
+            const options = supportStatuses.map((status) => `
+                <option value="${status}" ${status === normalized ? 'selected' : ''}>${supportStatusLabel(status)}</option>
+            `).join('');
+
+            return `
+                <select class="admin-status-select support-status-select" data-ticket-id="${escapeHtml(ticketValue(ticket, 'id', 'ticket_id'))}" data-current-status="${normalized}">
+                    ${options}
+                </select>
+            `;
+        }
+
+        async function updateSupportStatus(ticket, status) {
+            const ticketId = ticketValue(ticket, 'id', 'ticket_id');
+            return apiRequestAny([
+                '/api/update_support_ticket_status',
+                '/api/updatesupportticketstatus',
+                '/api/update_support_ticket',
+                '/api/updatesupportticket',
+                '/api/supporttickets/update'
+            ], {
+                method: 'POST',
+                body: JSON.stringify({
+                    id: ticketId,
+                    ticket_id: ticketId,
+                    support_ticket_id: ticketId,
+                    user_id: ticket.user_id || ticket.user?.id || ticket.client_id || null,
+                    status: normalizeSupportStatus(status)
+                })
+            });
+        }
+
         function renderPagination(totalItems) {
             const lastPage = Math.max(1, Math.ceil(totalItems / rowsPerPage));
             const safePage = Math.min(Math.max(1, currentPage), lastPage);
@@ -2325,13 +2377,41 @@
                     <td style="padding: 16px; border-bottom: 1px solid var(--border);">${escapeHtml(ticketValue(ticket, 'email'))}</td>
                     <td style="padding: 16px; border-bottom: 1px solid var(--border);">${escapeHtml(ticketValue(ticket, 'order_id'))}</td>
                     <td style="padding: 16px; border-bottom: 1px solid var(--border);">${escapeHtml(ticketValue(ticket, 'subject'))}</td>
-                    <td style="padding: 16px; border-bottom: 1px solid var(--border);">${escapeHtml(ticketValue(ticket, 'status'))}</td>
+                    <td style="padding: 16px; border-bottom: 1px solid var(--border);">${supportStatusControl(ticket)}</td>
                     <td style="padding: 16px; border-bottom: 1px solid var(--border); max-width: 320px;">${escapeHtml(ticketValue(ticket, 'message', 'description'))}</td>
                     <td style="padding: 16px; border-bottom: 1px solid var(--border);">${escapeHtml(formatDate(ticketValue(ticket, 'created_at', 'created_date', 'date')))}</td>
                 </tr>
             `).join('');
 
             renderPagination(tickets.length);
+            bindSupportStatusSelects(pageItems);
+        }
+
+        function bindSupportStatusSelects(pageItems) {
+            if (!adminView) return;
+
+            tableBody.querySelectorAll('.support-status-select').forEach((select) => {
+                select.addEventListener('change', async () => {
+                    const ticket = pageItems.find((item) => String(ticketValue(item, 'id', 'ticket_id')) === String(select.dataset.ticketId));
+                    const previousStatus = select.dataset.currentStatus || normalizeSupportStatus(ticket?.status);
+                    const nextStatus = normalizeSupportStatus(select.value);
+                    if (!ticket || nextStatus === previousStatus) return;
+
+                    select.disabled = true;
+
+                    try {
+                        const data = await updateSupportStatus(ticket, nextStatus);
+                        ticket.status = nextStatus;
+                        select.dataset.currentStatus = nextStatus;
+                        showAlert(data.message || 'Support ticket status updated successfully.');
+                    } catch (error) {
+                        select.value = previousStatus;
+                        showAlert(error.message);
+                    } finally {
+                        select.disabled = false;
+                    }
+                });
+            });
         }
 
         async function requestTickets(path) {
