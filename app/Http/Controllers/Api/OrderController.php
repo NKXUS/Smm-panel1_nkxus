@@ -55,9 +55,7 @@ class OrderController extends Controller
                 ]);
 
                 if ($orderStatus === 'completed' && $charge > 0) {
-                    $user->decrement('balance', $charge);
-                    $user->refresh();
-                    $commission = $this->applyReferralCommission($user, $charge, 1);
+                    $commission = $this->applyCompletedOrderCharge($user, $charge);
                 }
 
                 return $order;
@@ -158,17 +156,11 @@ class OrderController extends Controller
                     }
 
                     if ($oldStatus !== 'completed' && $newStatus === 'completed') {
-                        if ($charge > (float) $user->balance) {
-                            abort(422, 'Insufficient balance');
-                        }
-
-                        $user->decrement('balance', $charge);
-                        $commission = $this->applyReferralCommission($user, $charge, 1);
+                        $commission = $this->applyCompletedOrderCharge($user, $charge);
                     }
 
                     if ($oldStatus === 'completed' && $newStatus !== 'completed') {
-                        $user->increment('balance', $charge);
-                        $commission = $this->applyReferralCommission($user, $charge, -1);
+                        $commission = $this->refundCompletedOrderCharge($user, $charge);
                     }
                 }
 
@@ -194,6 +186,33 @@ class OrderController extends Controller
         }
     }
 
+    private function applyCompletedOrderCharge(SmmUser $user, float $charge): float
+    {
+        if ($charge <= 0) {
+            return 0;
+        }
+
+        if ($charge > (float) $user->balance) {
+            abort(422, 'Insufficient balance');
+        }
+
+        $user->decrement('balance', $charge);
+        $user->refresh();
+
+        return $this->applyReferralCommission($user, $charge, 1);
+    }
+
+    private function refundCompletedOrderCharge(SmmUser $user, float $charge): float
+    {
+        if ($charge <= 0) {
+            return 0;
+        }
+
+        $user->increment('balance', $charge);
+        $user->refresh();
+
+        return $this->applyReferralCommission($user, $charge, -1);
+    }
     private function getReferralLink(int $referrerId): string
     {
         $frontendUrl = rtrim(env('FRONTEND_URL', config('app.url')), '/');

@@ -28,6 +28,7 @@ class SmmUser extends Model
         'telegram_id',
         'google_id',
         'google_avatar',
+        'profile_image',
     ];
 
     protected $hidden = [
@@ -92,3 +93,4 @@ class SmmUser extends Model
         return $this->hasMany(SmmUser::class, 'referrer_id');
     }
 }
+

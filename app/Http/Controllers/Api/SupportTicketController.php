@@ -62,4 +62,32 @@ class SupportTicketController extends Controller
             ], 500);
         }
     }
+    public function updateSupportTicketStatus(Request $request)
+    {
+        try {
+            $request->validate([
+                'ticket_id' => 'required_without:id|integer|exists:support_tickets,id',
+                'id' => 'required_without:ticket_id|integer|exists:support_tickets,id',
+                'status' => 'required|in:open,pending,closed',
+            ]);
+
+            $ticketId = $request->ticket_id ?? $request->id;
+            $ticket = SupportTicket::with(['user', 'order'])->findOrFail($ticketId);
+            $ticket->update(['status' => $request->status]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Support ticket status updated successfully',
+                'data' => $ticket->fresh(['user', 'order']),
+            ], 200);
+
+        } catch (\Throwable $e) {
+            $code = method_exists($e, 'getStatusCode') ? $e->getStatusCode() : 500;
+
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage() ?: 'Failed to update support ticket status',
+            ], $code);
+        }
+    }
 }

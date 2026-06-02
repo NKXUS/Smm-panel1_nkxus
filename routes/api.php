@@ -91,6 +91,8 @@ Route::post('/createsupporttickets', [SupportTicketController::class, 'createSup
 
 Route::get('/getsupporttickets', [SupportTicketController::class, 'getSupportTickets']);
 
+Route::post('/update_support_ticket_status', [SupportTicketController::class, 'updateSupportTicketStatus']);
+
 Route::post('/createwhatsappwidget', [WhatsAppWidgetController::class, 'createWhatsAppWidget']);
 
 Route::get('/getwhatsappwidgets', [WhatsAppWidgetController::class, 'getWhatsAppWidgets']);

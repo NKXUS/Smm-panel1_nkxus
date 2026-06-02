@@ -10,6 +10,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 
@@ -177,6 +178,7 @@ public function updateProfile(Request $request)
             'currency' => 'nullable|string|max:10',
             'telegram_id' => 'nullable|string|max:100',
             'password' => 'nullable|string|min:6',
+            'profile_image' => 'nullable|string',
         ]);
 
         $updates = [
@@ -191,6 +193,10 @@ public function updateProfile(Request $request)
 
         if ($request->filled('password')) {
             $updates['password'] = Hash::make($request->password);
+        }
+
+        if ($request->filled('profile_image')) {
+            $updates['profile_image'] = $this->storeProfileImage($request->profile_image, $user);
         }
 
         $user->update($updates);
@@ -210,6 +216,7 @@ public function updateProfile(Request $request)
                 'timezone' => $user->timezone,
                 'currency' => $user->currency,
                 'telegram_id' => $user->telegram_id,
+                'profile_image' => $this->profileImageUrl($user),
             ],
         ], 200);
     } catch (\Illuminate\Validation\ValidationException $e) {
@@ -227,6 +234,44 @@ public function updateProfile(Request $request)
     }
 }
 
+private function storeProfileImage(string $image, SmmUser $user): string
+{
+    if (preg_match('/^data:image\/(png|jpe?g);base64,/', $image, $matches)) {
+        $extension = strtolower($matches[1]) === 'jpeg' ? 'jpg' : strtolower($matches[1]);
+        $data = substr($image, strpos($image, ',') + 1);
+        $decoded = base64_decode($data, true);
+
+        if ($decoded === false) {
+            throw new \InvalidArgumentException('Invalid profile image data');
+        }
+
+        $path = 'profile-images/user-' . $user->id . '-' . Str::random(12) . '.' . $extension;
+        Storage::disk('public')->put($path, $decoded);
+
+        if ($user->profile_image && !Str::startsWith($user->profile_image, ['http://', 'https://']) && Storage::disk('public')->exists($user->profile_image)) {
+            Storage::disk('public')->delete($user->profile_image);
+        }
+
+        return $path;
+    }
+
+    return $image;
+}
+
+private function profileImageUrl(SmmUser $user): ?string
+{
+    $image = $user->profile_image ?: $user->google_avatar;
+
+    if (!$image) {
+        return null;
+    }
+
+    if (Str::startsWith($image, ['http://', 'https://', 'data:'])) {
+        return $image;
+    }
+
+    return Storage::disk('public')->url($image);
+}
 private function getReferrerFromRequest(Request $request): ?SmmUser
 {
     if ($request->referrer_id) {
@@ -249,12 +294,12 @@ private function getReferrerFromRequest(Request $request): ?SmmUser
 private function getReferralLink(SmmUser $user): string
 {
     $frontendUrl = rtrim(env('FRONTEND_URL', config('app.url')), '/');
-
     return $frontendUrl . '/signup.html?ref=' . $user->id;
 }
 
 public function signIn(Request $request)
 {
+    $frontendKey = $this->frontendKeyFromRequest($request);
     $user = SmmUser::where('email', $request->email)->first();
 
     // Check user exists
@@ -291,8 +336,9 @@ public function signIn(Request $request)
             'email' => $user->email,
             'balance' => $user->balance,
             'role' => $user->role,
+            'profile_image' => $this->profileImageUrl($user),
         ],
-        'redirect' => $this->loginRedirectUrl($user),
+        'redirect' => $this->loginRedirectUrl($user, null, $frontendKey),
     ]);
 }
 
@@ -365,8 +411,8 @@ public function forgotPassword(Request $request)
             ]
         );
 
-        $frontendUrl = rtrim(env('FRONTEND_URL', config('app.url')), '/');
-        $resetLink = $frontendUrl . '/reset-password.html?token=' . $token . '&email=' . urlencode($request->email);
+        $resetBaseUrl = rtrim(config('app.url'), '/');
+        $resetLink = $resetBaseUrl . '/reset-password.html?token=' . $token . '&email=' . urlencode($request->email);
         $safeUsername = e($user->username);
         $safeResetLink = e($resetLink);
 
@@ -483,23 +529,32 @@ public function resetPassword(Request $request)
 public function redirectToGoogle(Request $request)
 {
     $returnTo = $this->googleAuthReturnPage($request->query('return_to', 'index.html'));
+    $frontendKey = $this->frontendKeyFromRequest($request);
 
     return Socialite::driver('google')
         ->stateless()
-        ->with(['state' => rtrim(strtr(base64_encode($returnTo), '+/', '-_'), '=')])
+        ->with(['state' => $this->googleAuthState($returnTo, $frontendKey)])
         ->redirect();
 }
 
 public function handleGoogleCallback(Request $request)
 {
-    $returnTo = $this->googleAuthReturnPageFromState($request);
+    $state = $this->googleAuthStateFromRequest($request);
+    $returnTo = $state['return_to'];
+    $frontendKey = $state['frontend'];
+
+    if ($frontendKey === '2' && $returnTo === 'index.html') {
+        $returnTo = 'profile.html';
+    }
+
+    $frontendUrl = $this->frontendUrl($state['frontend']);
 
     try {
         $googleUser = Socialite::driver('google')->stateless()->user();
         $email = $googleUser->getEmail();
 
         if (!$email) {
-            return $this->redirectGoogleLoginError('Google account email is required.', $returnTo);
+            return $this->redirectGoogleLoginError('Google account email is required.', $returnTo, $frontendUrl);
         }
 
         $user = SmmUser::where('google_id', $googleUser->getId())
@@ -535,22 +590,23 @@ public function handleGoogleCallback(Request $request)
             ]);
         }
 
-        return redirect()->away($this->googleLoginRedirectUrl($user, $token, $returnTo));
+        return redirect()->away($this->googleLoginRedirectUrl($user, $token, $returnTo, $frontendUrl, $frontendKey));
     } catch (\Throwable $e) {
-        return $this->redirectGoogleLoginError('Google login failed. Please try again.', $returnTo);
+        return $this->redirectGoogleLoginError('Google login failed. Please try again.', $returnTo, $frontendUrl);
     }
 }
 
-private function googleLoginRedirectUrl(SmmUser $user, string $token, string $returnTo = 'index.html'): string
+private function googleLoginRedirectUrl(SmmUser $user, string $token, string $returnTo = 'index.html', ?string $frontendUrl = null, string $frontendKey = '1'): string
 {
-    $frontendUrl = rtrim(env('FRONTEND_URL', config('app.url')), '/');
-    $redirectUrl = $this->loginRedirectUrl($user);
+    $frontendUrl = $frontendUrl ? rtrim($frontendUrl, '/') : $this->frontendUrl('1');
+    $redirectUrl = $this->loginRedirectUrl($user, $frontendUrl, $frontendKey);
     $payload = rtrim(strtr(base64_encode(json_encode([
         'id' => $user->id,
         'username' => $user->username,
         'email' => $user->email,
         'balance' => $user->balance,
         'role' => $user->role,
+        'profile_image' => $this->profileImageUrl($user),
     ])), '+/', '-_'), '=');
 
     return $frontendUrl . '/' . $returnTo . '#google_auth=success'
@@ -560,40 +616,107 @@ private function googleLoginRedirectUrl(SmmUser $user, string $token, string $re
         . '&redirect=' . urlencode($redirectUrl);
 }
 
-private function loginRedirectUrl(SmmUser $user): string
+private function loginRedirectUrl(SmmUser $user, ?string $frontendUrl = null, string $frontendKey = '1'): string
 {
-    $frontendUrl = rtrim(env('FRONTEND_URL', 'http://127.0.0.1:5500/Smm-panel1_nkxus'), '/');
+    $frontendUrl = $frontendUrl ? rtrim($frontendUrl, '/') : $this->frontendUrl('1');
     $role = strtolower((string) $user->role);
-    $page = $role === 'admin' ? 'admin.html' : 'dashboard.html';
+    $page = $frontendKey === '2' ? 'profile.html' : ($role === 'admin' ? 'admin.html' : 'dashboard.html');
 
     return $frontendUrl . '/' . $page;
 }
 
-private function redirectGoogleLoginError(string $message, string $returnTo = 'index.html')
+private function redirectGoogleLoginError(string $message, string $returnTo = 'index.html', ?string $frontendUrl = null)
 {
-    $frontendUrl = rtrim(env('FRONTEND_URL', config('app.url')), '/');
+    $frontendUrl = $frontendUrl ? rtrim($frontendUrl, '/') : $this->frontendUrl('1');
 
     return redirect()->away($frontendUrl . '/' . $returnTo . '#google_auth=error&message=' . urlencode($message));
 }
 
-private function googleAuthReturnPageFromState(Request $request): string
+private function googleAuthStateFromRequest(Request $request): array
 {
     $state = (string) $request->query('state', '');
 
     if (!$state) {
-        return 'index.html';
+        return ['return_to' => 'index.html', 'frontend' => '1'];
     }
 
     $decoded = base64_decode(strtr($state, '-_', '+/'), true);
+    $payload = json_decode($decoded ?: '', true);
 
-    return $this->googleAuthReturnPage($decoded ?: 'index.html');
+    if (is_array($payload)) {
+        return [
+            'return_to' => $this->googleAuthReturnPage($payload['return_to'] ?? 'index.html'),
+            'frontend' => $this->googleAuthFrontendKey($payload['frontend'] ?? '1'),
+        ];
+    }
+
+    return [
+        'return_to' => $this->googleAuthReturnPage($decoded ?: 'index.html'),
+        'frontend' => '1',
+    ];
+}
+
+private function googleAuthState(string $returnTo, string $frontendKey): string
+{
+    return rtrim(strtr(base64_encode(json_encode([
+        'return_to' => $returnTo,
+        'frontend' => $frontendKey,
+    ])), '+/', '-_'), '=');
 }
 
 private function googleAuthReturnPage(?string $returnTo): string
 {
     $page = basename((string) $returnTo);
 
-    return in_array($page, ['index.html', 'signup.html'], true) ? $page : 'index.html';
+    return in_array($page, ['index.html', 'signup.html', 'profile.html'], true) ? $page : 'index.html';
+}
+
+private function googleAuthFrontendKey(?string $frontend): string
+{
+    return $frontend === '2' ? '2' : '1';
+}
+
+private function frontendKeyFromRequest(Request $request): string
+{
+    $requestedFrontend = $request->input('frontend', $request->query('frontend'));
+
+    if ($this->googleAuthFrontendKey($requestedFrontend) === '2') {
+        return '2';
+    }
+
+    $frontendTwoOrigin = $this->urlOrigin($this->frontendUrl('2'));
+    $requestOrigin = $this->urlOrigin($request->headers->get('Origin'));
+    $requestReferer = $this->urlOrigin($request->headers->get('Referer'));
+
+    return in_array($frontendTwoOrigin, [$requestOrigin, $requestReferer], true) ? '2' : '1';
+}
+
+private function frontendUrl(string $frontendKey): string
+{
+    $envKey = $frontendKey === '2' ? 'FRONTEND_URL_2' : 'FRONTEND_URL';
+
+    return rtrim(env($envKey, env('FRONTEND_URL', config('app.url'))), '/');
+}
+
+private function urlOrigin(?string $url): ?string
+{
+    if (!$url) {
+        return null;
+    }
+
+    $parts = parse_url($url);
+
+    if (!$parts || empty($parts['scheme']) || empty($parts['host'])) {
+        return null;
+    }
+
+    $origin = $parts['scheme'] . '://' . $parts['host'];
+
+    if (!empty($parts['port'])) {
+        $origin .= ':' . $parts['port'];
+    }
+
+    return $origin;
 }
 
 private function uniqueGoogleUsername(string $name, string $email): string
@@ -611,3 +734,8 @@ private function uniqueGoogleUsername(string $name, string $email): string
     return $username;
 }
 }
+
+
+
+
+
