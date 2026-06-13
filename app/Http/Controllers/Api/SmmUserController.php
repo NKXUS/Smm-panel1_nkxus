@@ -530,10 +530,11 @@ public function redirectToGoogle(Request $request)
 {
     $returnTo = $this->googleAuthReturnPage($request->query('return_to', 'index.html'));
     $frontendKey = $this->frontendKeyFromRequest($request);
+    $frontendUrl = $this->googleAuthFrontendUrl($request->query('frontend_url'));
 
     return Socialite::driver('google')
         ->stateless()
-        ->with(['state' => $this->googleAuthState($returnTo, $frontendKey)])
+        ->with(['state' => $this->googleAuthState($returnTo, $frontendKey, $frontendUrl)])
         ->redirect();
 }
 
@@ -547,7 +548,7 @@ public function handleGoogleCallback(Request $request)
         $returnTo = 'profile.html';
     }
 
-    $frontendUrl = $this->frontendUrl($state['frontend']);
+    $frontendUrl = $state['frontend_url'] ?: $this->frontendUrl($state['frontend']);
 
     try {
         $googleUser = Socialite::driver('google')->stateless()->user();
@@ -637,7 +638,7 @@ private function googleAuthStateFromRequest(Request $request): array
     $state = (string) $request->query('state', '');
 
     if (!$state) {
-        return ['return_to' => 'index.html', 'frontend' => '1'];
+        return ['return_to' => 'index.html', 'frontend' => '1', 'frontend_url' => null];
     }
 
     $decoded = base64_decode(strtr($state, '-_', '+/'), true);
@@ -647,20 +648,23 @@ private function googleAuthStateFromRequest(Request $request): array
         return [
             'return_to' => $this->googleAuthReturnPage($payload['return_to'] ?? 'index.html'),
             'frontend' => $this->googleAuthFrontendKey($payload['frontend'] ?? '1'),
+            'frontend_url' => $this->googleAuthFrontendUrl($payload['frontend_url'] ?? null),
         ];
     }
 
     return [
         'return_to' => $this->googleAuthReturnPage($decoded ?: 'index.html'),
         'frontend' => '1',
+        'frontend_url' => null,
     ];
 }
 
-private function googleAuthState(string $returnTo, string $frontendKey): string
+private function googleAuthState(string $returnTo, string $frontendKey, ?string $frontendUrl = null): string
 {
     return rtrim(strtr(base64_encode(json_encode([
         'return_to' => $returnTo,
         'frontend' => $frontendKey,
+        'frontend_url' => $frontendUrl,
     ])), '+/', '-_'), '=');
 }
 
@@ -674,6 +678,20 @@ private function googleAuthReturnPage(?string $returnTo): string
 private function googleAuthFrontendKey(?string $frontend): string
 {
     return $frontend === '2' ? '2' : '1';
+}
+
+private function googleAuthFrontendUrl(?string $url): ?string
+{
+    $url = rtrim((string) $url, '/');
+
+    if (!$url || !filter_var($url, FILTER_VALIDATE_URL)) {
+        return null;
+    }
+
+    $parts = parse_url($url);
+    $scheme = strtolower((string) ($parts['scheme'] ?? ''));
+
+    return in_array($scheme, ['http', 'https'], true) ? $url : null;
 }
 
 private function frontendKeyFromRequest(Request $request): string
@@ -734,7 +752,6 @@ private function uniqueGoogleUsername(string $name, string $email): string
     return $username;
 }
 }
-
 
 
 
