@@ -42,13 +42,22 @@ class ServiceController extends Controller
     }
 
     // GET SERVICES WITH PAGINATION
-    public function getServices()
+    public function getServices(Request $request)
     {
         try {
 
-            $services = Service::with('category')
-                ->latest()
-                ->paginate(10);
+            $query = Service::with('category')->latest();
+
+            // Allows the Buy Now form to request only services belonging to
+            // the category selected by the customer.
+            if ($request->filled('category_id')) {
+                $query->where('category_id', $request->integer('category_id'));
+            }
+
+            // The old page size of ten made the frontend issue hundreds of
+            // requests for the imported catalog. A larger page keeps existing
+            // pagination support while loading the dropdown promptly.
+            $services = $query->paginate(1000);
 
             return response()->json([
                 'status' => true,

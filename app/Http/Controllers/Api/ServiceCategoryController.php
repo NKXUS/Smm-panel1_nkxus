@@ -37,7 +37,9 @@ public function getCategories()
     {
         try {
 
-            $categories = ServiceCategory::latest()->paginate(10);
+            // Categories power the Buy Now dropdown. Return the complete,
+            // alphabetically ordered catalog instead of ten records at a time.
+            $categories = ServiceCategory::orderBy('name')->get();
 
             return response()->json([
                 'status' => true,
