@@ -547,6 +547,76 @@
         document.head.appendChild(style);
     }
 
+    function ensurePaginationJumpStyle() {
+        if (document.getElementById('pagination-jump-style')) return;
+
+        const style = document.createElement('style');
+        style.id = 'pagination-jump-style';
+        style.textContent = `
+            .pagination-jump {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                color: var(--secondary-light, #666);
+                font-size: 13px;
+                font-weight: 600;
+            }
+            .pagination-jump-input {
+                width: 72px;
+                min-height: 36px;
+                border: 1px solid var(--border, #e5e7eb);
+                border-radius: 8px;
+                background: var(--white, #fff);
+                color: var(--secondary, #444);
+                font: inherit;
+                padding: 6px 10px;
+                text-align: center;
+                outline: none;
+            }
+            .pagination-jump-input:focus {
+                border-color: var(--primary, #52906b);
+                box-shadow: 0 0 0 3px rgba(82, 144, 107, 0.14);
+            }
+            .pagination-jump-total {
+                color: var(--secondary-light, #666);
+                font-size: 13px;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    function paginationJumpMarkup(currentPage, lastPage) {
+        if (Number(lastPage || 1) <= 1) return '';
+        ensurePaginationJumpStyle();
+
+        return `
+            <label class="pagination-jump">
+                Go to
+                <input class="pagination-jump-input" type="number" min="1" max="${Number(lastPage)}" value="${Number(currentPage)}" aria-label="Go to page">
+                <span class="pagination-jump-total">/ ${Number(lastPage)}</span>
+            </label>
+            <button class="pagination-btn pagination-jump-go" type="button">Go</button>
+        `;
+    }
+
+    function bindPaginationJump(container, currentPage, lastPage, onChange) {
+        const input = container?.querySelector('.pagination-jump-input');
+        if (!input) return;
+
+        const goToPage = () => {
+            const page = Math.min(Math.max(1, Number(input.value || 1)), Number(lastPage || 1));
+            input.value = page;
+            if (page !== Number(currentPage)) onChange(page);
+        };
+
+        input.addEventListener('keydown', (event) => {
+            if (event.key !== 'Enter') return;
+            event.preventDefault();
+            goToPage();
+        });
+        container.querySelector('.pagination-jump-go')?.addEventListener('click', goToPage);
+    }
+
     async function refreshCurrentFinancialState() {
         totalFundsPromise = null;
         spentBalancePromise = null;
@@ -932,15 +1002,19 @@
             const filtered = categories.filter((category) => {
                 const matchesPlatform = platform === 'all'
                     || String(category.platform || '').toLowerCase() === platform;
-                return matchesPlatform && (!searchTerm || matchingCategoryIds.has(String(category.id)));
+                const matchesSearch = !searchTerm || matchingCategoryIds.has(String(category.id));
+                return matchesPlatform && matchesSearch;
             });
+            const previousCategory = categorySelect.value;
 
             categorySelect.innerHTML = '<option value="">Select a category</option>';
             filtered.forEach((category) => {
                 categorySelect.insertAdjacentHTML('beforeend', `<option value="${category.id}">${escapeHtml(category.name)}</option>`);
             });
 
-            if (filtered.length === 1) {
+            if (filtered.some((category) => String(category.id) === String(previousCategory))) {
+                categorySelect.value = previousCategory;
+            } else if (filtered.length === 1) {
                 categorySelect.value = filtered[0].id;
             }
 
@@ -971,8 +1045,10 @@
             renderCategories(activePlatform);
 
             categorySelect.value = service.category_id;
+            categorySelect.dispatchEvent(new Event('change', { bubbles: true }));
             renderServices();
             serviceSelect.value = service.id;
+            serviceSelect.dispatchEvent(new Event('change', { bubbles: true }));
             updateServiceDetails();
 
             form.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1028,13 +1104,16 @@
         function renderServices() {
             const categoryId = categorySelect.value;
             const filtered = filteredDashboardServices().filter((service) => String(service.category_id) === String(categoryId));
+            const previousService = serviceSelect.value;
 
             serviceSelect.innerHTML = '<option value="">Select a service</option>';
             filtered.forEach((service) => {
                 serviceSelect.insertAdjacentHTML('beforeend', `<option value="${service.id}">${escapeHtml(service.name)} - ${formatMoney(service.rate_per_1000)}</option>`);
             });
 
-            if (filtered.length === 1) {
+            if (filtered.some((service) => String(service.id) === String(previousService))) {
+                serviceSelect.value = previousService;
+            } else if (filtered.length === 1) {
                 serviceSelect.value = filtered[0].id;
             }
 
@@ -1164,6 +1243,7 @@
                         <button class="pagination-btn" data-page="${Number(meta.current_page) - 1}" type="button" ${meta.prev_page_url ? '' : 'disabled'}>Previous</button>
                         ${buttons}
                         <button class="pagination-btn" data-page="${Number(meta.current_page) + 1}" type="button" ${meta.next_page_url ? '' : 'disabled'}>Next</button>
+                        ${paginationJumpMarkup(meta.current_page, meta.last_page)}
                     ` : ''}
                     <div class="pagination-summary">Showing ${meta.from || 0}-${meta.to || 0} of ${meta.total || 0} orders</div>
                 </div>
@@ -1179,6 +1259,13 @@
                         renderFilteredStatusPage(page);
                     }
                 });
+            });
+            bindPaginationJump(document.querySelector('.orders-pagination'), currentPage, meta.last_page, (page) => {
+                if (activeOrderStatus === 'all') {
+                    loadOrders(page);
+                } else {
+                    renderFilteredStatusPage(page);
+                }
             });
         }
 
@@ -1536,6 +1623,8 @@
         let currentPage = 1;
         let lastServices = [];
         let lastMeta = null;
+        let allServicesCache = null;
+        const servicesPerPage = 10;
         const loadedPlatforms = new Set();
 
         async function createService(payload) {
@@ -1600,28 +1689,6 @@
             }
         }
 
-        function loadAllPlatforms(firstPayload) {
-            const meta = firstPayload?.data;
-            const lastPage = Number(meta?.last_page || 1);
-
-            updatePlatformDropdown(itemsFromPaginated(firstPayload));
-
-            if (lastPage <= 1) return;
-
-            const pageRequests = [];
-            for (let page = 2; page <= lastPage; page += 1) {
-                pageRequests.push(apiRequest(`/api/get_services?page=${page}`));
-            }
-
-            Promise.allSettled(pageRequests).then((results) => {
-                results.forEach((result) => {
-                    if (result.status === 'fulfilled') {
-                        updatePlatformDropdown(itemsFromPaginated(result.value));
-                    }
-                });
-            });
-        }
-
         function filteredServices(services) {
             const platform = platformSelect?.value || 'All Platforms';
             const search = (searchInput?.value || '').trim().toLowerCase();
@@ -1639,16 +1706,26 @@
 
             if (!meta || Number(meta.last_page || 1) <= 1) return;
 
-            const pages = Array.from({ length: Number(meta.last_page) }, (_item, index) => index + 1);
-            const buttons = pages.map((page) => `
+            const current = Number(meta.current_page || 1);
+            const lastPage = Number(meta.last_page || 1);
+            const pages = Array.from(new Set([1, lastPage, current - 2, current - 1, current, current + 1, current + 2]))
+                .filter((page) => page >= 1 && page <= lastPage)
+                .sort((a, b) => a - b);
+            let previousPage = 0;
+            const buttons = pages.map((page) => {
+                const ellipsis = page - previousPage > 1 ? '<span class="pagination-ellipsis">...</span>' : '';
+                previousPage = page;
+                return `${ellipsis}
                 <button class="pagination-btn ${page === Number(meta.current_page) ? 'active' : ''}" data-page="${page}" type="button">${page}</button>
-            `).join('');
+            `;
+            }).join('');
 
             content.insertAdjacentHTML('beforeend', `
                 <div class="services-pagination">
                     <button class="pagination-btn" data-page="${Number(meta.current_page) - 1}" type="button" ${meta.prev_page_url ? '' : 'disabled'}>Previous</button>
                     ${buttons}
                     <button class="pagination-btn" data-page="${Number(meta.current_page) + 1}" type="button" ${meta.next_page_url ? '' : 'disabled'}>Next</button>
+                    ${paginationJumpMarkup(meta.current_page, meta.last_page)}
                     <div class="pagination-summary">Showing ${meta.from || 0}-${meta.to || 0} of ${meta.total || 0} services</div>
                 </div>
             `);
@@ -1659,22 +1736,43 @@
                     if (page && page !== currentPage) loadServices(page);
                 });
             });
+            bindPaginationJump(content.querySelector('.services-pagination'), meta.current_page, meta.last_page, loadServices);
         }
 
-        function renderServices(services, meta) {
-            const visibleServices = filteredServices(services);
-            const grouped = visibleServices.reduce((acc, service) => {
-                const categoryName = service.category?.name || 'Services';
-                acc[categoryName] = acc[categoryName] || [];
-                acc[categoryName].push(service);
-                return acc;
-            }, {});
+        function buildServicesPaginationMeta(items, page) {
+            const total = items.length;
+            const lastPage = Math.max(1, Math.ceil(total / servicesPerPage));
+            const safePage = Math.min(Math.max(1, page), lastPage);
+            const from = total ? ((safePage - 1) * servicesPerPage) + 1 : 0;
+            const to = Math.min(safePage * servicesPerPage, total);
+
+            return {
+                current_page: safePage,
+                last_page: lastPage,
+                from,
+                to,
+                total,
+                prev_page_url: safePage > 1 ? '#' : null,
+                next_page_url: safePage < lastPage ? '#' : null
+            };
+        }
+
+        function renderServices(services = allServicesCache, meta = null) {
+            const sourceServices = services || [];
+            const visibleServices = filteredServices(sourceServices);
+            const paginationMeta = meta || buildServicesPaginationMeta(visibleServices, currentPage);
+            currentPage = Number(paginationMeta.current_page || 1);
+            lastMeta = paginationMeta;
+
+            const start = (currentPage - 1) * servicesPerPage;
+            const pageServices = visibleServices.slice(start, start + servicesPerPage);
+            lastServices = pageServices;
 
             content.querySelectorAll('.service-category').forEach((node) => node.remove());
             content.querySelector('.services-pagination')?.remove();
             document.getElementById('services-loading-state')?.remove();
 
-            if (!visibleServices.length) {
+            if (!pageServices.length) {
                 content.insertAdjacentHTML('beforeend', `
                     <div class="service-category">
                         <div class="table-container">
@@ -1684,49 +1782,46 @@
                         </div>
                     </div>
                 `);
-                renderPagination(meta);
+                renderPagination(paginationMeta);
                 return;
             }
 
-            Object.entries(grouped).forEach(([categoryName, rows]) => {
-                content.insertAdjacentHTML('beforeend', `
-                    <div class="service-category">
-                        <div class="category-header"><h3>${escapeHtml(categoryName)}</h3></div>
-                        <div class="table-container">
-                            <table class="services-table">
-                                <thead><tr><th>ID</th><th>Service Name</th><th>Rate/1K</th><th>Action</th></tr></thead>
-                                <tbody>
-                                    ${rows.map((service) => `
-                                        <tr>
-                                            <td class="service-id" data-label="ID">${service.id}</td>
-                                            <td data-label="Service Name">
-                                                <div class="title-row"><span class="service-name">${escapeHtml(service.name)}</span></div>
-                                                <div class="badge-container">
-                                                    <span class="badge-tag badge-gray min-max-tag">Min: ${service.min_order || 0}</span>
-                                                    <span class="badge-tag badge-gray min-max-tag">Max: ${service.max_order || 0}</span>
-                                                </div>
-                                            </td>
-                                            <td class="rate-cell" data-label="Rate/1K">${formatMoney(service.rate_per_1000)}</td>
-                                            <td data-label="Action"><button class="btn-view" data-service-id="${service.id}" type="button">View</button></td>
-                                        </tr>
-                                    `).join('')}
-                                </tbody>
-                            </table>
-                        </div>
+            content.insertAdjacentHTML('beforeend', `
+                <div class="service-category">
+                    <div class="table-container">
+                        <table class="services-table">
+                            <thead><tr><th>ID</th><th>Service Name</th><th>Rate/1K</th><th>Action</th></tr></thead>
+                            <tbody>
+                                ${pageServices.map((service) => `
+                                    <tr>
+                                        <td class="service-id" data-label="ID">${service.id}</td>
+                                        <td data-label="Service Name">
+                                            <div class="title-row"><span class="service-name">${escapeHtml(service.name)}</span></div>
+                                            <div class="badge-container">
+                                                <span class="badge-tag badge-gray min-max-tag">Min: ${service.min_order || 0}</span>
+                                                <span class="badge-tag badge-gray min-max-tag">Max: ${service.max_order || 0}</span>
+                                            </div>
+                                        </td>
+                                        <td class="rate-cell" data-label="Rate/1K">${formatMoney(service.rate_per_1000)}</td>
+                                        <td data-label="Action"><button class="btn-view" data-service-id="${service.id}" type="button">View</button></td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
                     </div>
-                `);
-            });
+                </div>
+            `);
 
             content.querySelectorAll('.btn-view[data-service-id]').forEach((button) => {
                 button.addEventListener('click', () => {
-                    const service = lastServices.find((item) => String(item.id) === String(button.dataset.serviceId));
+                    const service = (allServicesCache || lastServices).find((item) => String(item.id) === String(button.dataset.serviceId));
                     if (!service) return;
 
                     showServiceModal(service);
                 });
             });
 
-            renderPagination(meta);
+            renderPagination(paginationMeta);
         }
 
         function showServiceModal(service) {
@@ -1764,26 +1859,39 @@
 
         window.showServiceModal = showServiceModal;
 
-        function loadServices(page = 1) {
+        async function loadServices(page = 1) {
             currentPage = page;
-            apiRequest(`/api/get_services?page=${page}`).then((payload) => {
-                lastServices = itemsFromPaginated(payload);
-                lastMeta = payload.data;
-                if (page === 1 && loadedPlatforms.size === 0) {
-                    loadAllPlatforms(payload);
-                } else {
-                    updatePlatformDropdown(lastServices);
+            try {
+                if (!allServicesCache) {
+                    allServicesCache = await getAllPaginatedItems('/api/get_services?per_page=10');
+                    loadedPlatforms.clear();
+                    updatePlatformDropdown(allServicesCache);
                 }
-                renderServices(lastServices, lastMeta);
-            }).catch(showAlert);
+
+                renderServices(allServicesCache);
+            } catch (error) {
+                showAlert(error.message);
+            }
         }
 
-        searchButton?.addEventListener('click', () => renderServices(lastServices, lastMeta));
-        searchInput?.addEventListener('input', () => renderServices(lastServices, lastMeta));
-        searchInput?.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') renderServices(lastServices, lastMeta);
+        searchButton?.addEventListener('click', () => {
+            currentPage = 1;
+            renderServices(allServicesCache);
         });
-        platformSelect?.addEventListener('change', () => renderServices(lastServices, lastMeta));
+        searchInput?.addEventListener('input', () => {
+            currentPage = 1;
+            renderServices(allServicesCache);
+        });
+        searchInput?.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                currentPage = 1;
+                renderServices(allServicesCache);
+            }
+        });
+        platformSelect?.addEventListener('change', () => {
+            currentPage = 1;
+            renderServices(allServicesCache);
+        });
         if (isAdmin) loadAdminServiceCategories();
 
         document.getElementById('admin-service-form')?.addEventListener('submit', async (event) => {
@@ -1812,6 +1920,7 @@
                 showAlert(data.message || 'Service created successfully.');
                 form.reset();
                 loadedPlatforms.clear();
+                allServicesCache = null;
                 loadServices(1);
             } catch (error) {
                 showAlert(error.message);
@@ -1961,6 +2070,7 @@
                 <button class="pagination-btn" data-page="${Number(meta.current_page) - 1}" type="button" ${meta.prev_page_url ? '' : 'disabled'}>Previous</button>
                 ${buttons}
                 <button class="pagination-btn" data-page="${Number(meta.current_page) + 1}" type="button" ${meta.next_page_url ? '' : 'disabled'}>Next</button>
+                ${paginationJumpMarkup(meta.current_page, meta.last_page)}
                 <div class="pagination-summary">Showing ${meta.from || 0}-${meta.to || 0} of ${meta.total || 0} payments</div>
             `;
 
@@ -1970,6 +2080,7 @@
                     if (page && page !== currentPaymentPage) loadPayments(page);
                 });
             });
+            bindPaginationJump(paymentPagination, meta.current_page, meta.last_page, loadPayments);
         }
 
         function buildPaymentPaginationMeta(items, page) {
@@ -2347,6 +2458,7 @@
                 <button class="pagination-btn" type="button" data-page="${safePage - 1}" ${safePage <= 1 ? 'disabled' : ''}>Previous</button>
                 ${pageButtons}
                 <button class="pagination-btn" type="button" data-page="${safePage + 1}" ${safePage >= lastPage ? 'disabled' : ''}>Next</button>
+                ${paginationJumpMarkup(safePage, lastPage)}
                 <div class="pagination-summary">Showing ${from}-${to} of ${totalItems} tickets</div>
             `;
 
@@ -2357,6 +2469,10 @@
                     currentPage = page;
                     renderTickets();
                 });
+            });
+            bindPaginationJump(pagination, currentPage, lastPage, (page) => {
+                currentPage = page;
+                renderTickets();
             });
         }
 
@@ -2606,6 +2722,7 @@
                     <button class="pagination-btn ${pageNumber === safePage ? 'active' : ''}" type="button" data-page="${pageNumber}">${pageNumber}</button>
                 `).join('')}
                 <button class="pagination-btn" type="button" data-page="${safePage + 1}" ${safePage >= lastPage ? 'disabled' : ''}>Next</button>
+                ${paginationJumpMarkup(safePage, lastPage)}
                 <div class="pagination-summary">Showing ${from}-${to} of ${totalItems} mass orders</div>
             `;
 
@@ -2616,6 +2733,10 @@
                     currentPage = nextPage;
                     renderMassOrders();
                 });
+            });
+            bindPaginationJump(pagination, currentPage, lastPage, (nextPage) => {
+                currentPage = nextPage;
+                renderMassOrders();
             });
         }
 
@@ -2836,6 +2957,7 @@
                     <button class="pagination-btn ${pageNumber === safePage ? 'active' : ''}" type="button" data-page="${pageNumber}">${pageNumber}</button>
                 `).join('')}
                 <button class="pagination-btn" type="button" data-page="${safePage + 1}" ${safePage >= lastPage ? 'disabled' : ''}>Next</button>
+                ${paginationJumpMarkup(safePage, lastPage)}
                 <div class="pagination-summary">Showing ${from}-${to} of ${totalItems} payouts</div>
             `;
 
@@ -2846,6 +2968,7 @@
                     renderPayoutsPage(nextPage);
                 });
             });
+            bindPaginationJump(payoutPagination, safePage, lastPage, renderPayoutsPage);
         }
 
         function renderPayoutsPage(page = 1) {

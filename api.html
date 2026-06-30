@@ -1602,6 +1602,37 @@
                 };
             }
 
+            function paginationJumpMarkup(currentPage, lastPage) {
+                if (Number(lastPage || 1) <= 1) return '';
+
+                return `
+                    <label class="pagination-jump" style="display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--secondary-light);">
+                        Go to
+                        <input class="pagination-jump-input" type="number" min="1" max="${Number(lastPage)}" value="${Number(currentPage)}" aria-label="Go to page" style="width:72px;min-height:36px;border:1px solid var(--border);border-radius:8px;background:var(--white);color:var(--secondary);font:inherit;padding:6px 10px;text-align:center;outline:none;">
+                        <span>/ ${Number(lastPage)}</span>
+                    </label>
+                    <button class="pagination-btn pagination-jump-go" type="button">Go</button>
+                `;
+            }
+
+            function bindPaginationJump(container, currentPage, lastPage, onChange) {
+                const input = container?.querySelector('.pagination-jump-input');
+                if (!input) return;
+
+                const goToPage = () => {
+                    const page = Math.min(Math.max(1, Number(input.value || 1)), Number(lastPage || 1));
+                    input.value = page;
+                    if (page !== Number(currentPage)) onChange(page);
+                };
+
+                input.addEventListener('keydown', (event) => {
+                    if (event.key !== 'Enter') return;
+                    event.preventDefault();
+                    goToPage();
+                });
+                container.querySelector('.pagination-jump-go')?.addEventListener('click', goToPage);
+            }
+
             function renderApiKeysPagination(meta) {
                 const pagination = document.getElementById('api-keys-pagination');
                 if (!pagination) return;
@@ -1622,6 +1653,7 @@
                     <button class="pagination-btn" data-page="${Number(meta.current_page) - 1}" type="button" ${meta.prev_page_url ? '' : 'disabled'}>Previous</button>
                     ${buttons}
                     <button class="pagination-btn" data-page="${Number(meta.current_page) + 1}" type="button" ${meta.next_page_url ? '' : 'disabled'}>Next</button>
+                    ${paginationJumpMarkup(meta.current_page, meta.last_page)}
                     <div class="pagination-summary">Showing ${meta.from || 0}-${meta.to || 0} of ${meta.total || 0} API keys</div>
                 `;
 
@@ -1631,6 +1663,7 @@
                         if (page && page !== apiKeysCurrentPage) renderApiKeysPage(page);
                     });
                 });
+                bindPaginationJump(pagination, meta.current_page, meta.last_page, renderApiKeysPage);
             }
 
             function formatDate(value) {

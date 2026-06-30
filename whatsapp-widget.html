@@ -1164,6 +1164,12 @@
                     <button class="pagination-btn" type="button" data-page="${safePage - 1}" ${safePage <= 1 ? 'disabled' : ''}>Previous</button>
                     ${pageButtons}
                     <button class="pagination-btn" type="button" data-page="${safePage + 1}" ${safePage >= lastPage ? 'disabled' : ''}>Next</button>
+                    <label class="pagination-jump" style="display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--secondary-light);">
+                        Go to
+                        <input class="pagination-jump-input" type="number" min="1" max="${lastPage}" value="${safePage}" aria-label="Go to page" style="width:72px;min-height:36px;border:1px solid var(--border);border-radius:8px;background:var(--white);color:var(--secondary);font:inherit;padding:6px 10px;text-align:center;outline:none;">
+                        <span>/ ${lastPage}</span>
+                    </label>
+                    <button class="pagination-btn pagination-jump-go" type="button">Go</button>
                     <div class="pagination-summary">Showing ${from}-${to} of ${totalItems} widgets</div>
                 `;
 
@@ -1175,6 +1181,21 @@
                         renderWidgets();
                     });
                 });
+                const goToWidgetPage = () => {
+                    const input = widgetsPagination.querySelector('.pagination-jump-input');
+                    if (!input) return;
+                    const nextPage = Math.min(Math.max(1, Number(input.value || 1)), lastPage);
+                    input.value = nextPage;
+                    if (nextPage === currentPage) return;
+                    currentPage = nextPage;
+                    renderWidgets();
+                };
+                widgetsPagination.querySelector('.pagination-jump-input')?.addEventListener('keydown', (event) => {
+                    if (event.key !== 'Enter') return;
+                    event.preventDefault();
+                    goToWidgetPage();
+                });
+                widgetsPagination.querySelector('.pagination-jump-go')?.addEventListener('click', goToWidgetPage);
             }
 
             function renderWidgets() {
